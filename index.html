@@ -435,7 +435,8 @@
             perspective: 1000px;
             cursor: pointer;
             position: relative;
-            transition: transform 0.3s ease-out;
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 2;
         }
 
         .card-inner {
@@ -484,19 +485,21 @@
         }
 
         .card-slot.zoomed-winner {
-            transform: scale(1.15);
+            transform: scale(1.15) !important;
             box-shadow: 0 0 25px gold;
             z-index: 10;
         }
         
         .card-slot.disabled {
             cursor: not-allowed;
-            opacity: 0.9;
+            pointer-events: none;
         }
         
         .card-slot.highlight-ready {
             box-shadow: 0 0 15px var(--border-neon);
             border-radius: 8px;
+            pointer-events: auto;
+            cursor: pointer;
         }
 
         @media (max-width: 600px) {
@@ -521,7 +524,7 @@
             • Đề thi gồm <b>110 câu hỏi</b> được tuyển chọn kỹ lưỡng, chia thành 2 phần rõ rệt:<br>
             • <b>Câu 1 - 50 (Ngữ pháp cơ bản)</b>: Tập trung hoàn toàn vào 3 thì quan trọng: <i>Hiện tại đơn, Hiện tại tiếp diễn, Hiện tại hoàn thành</i>. Mỗi câu đều đi kèm các từ nhận biết đặc trưng rõ ràng giúp học sinh dễ nhận biết.<br>
             • <b>Câu 51 - 110 (Từ vựng lớp 9)</b>: 60 câu từ vựng trích xuất từ SGK Tiếng Anh 9 Global Success mới nhất, gồm 30 câu trắc nghiệm xác nhận nghĩa và 30 câu điền từ viết tay rèn luyện trí nhớ.<br>
-            • 🎁 <b>Vòng Quà Tặng Đặc Biệt</b>: Thiết lập cấu trúc chuẩn 3 thẻ hàng trên, 2 thẻ hàng dưới. Lá bài sẽ <b>bắt đầu xáo từ rất chậm</b> ở các vòng đầu tiên, và <b>nhanh dần đều</b> ở các vòng sau. Đặc biệt, hệ thống sẽ <b>khóa hoàn toàn tính năng nhấp chuột</b> cho đến khi bài sáng lên báo hiệu hoàn thành xáo bài mới cho chọn!
+            • 🎁 <b>Vòng Quà Tặng Đặc Biệt</b>: Xuất hiện <b>sau mỗi 3 câu hỏi</b>. Thiết lập cấu trúc chuẩn 3 thẻ hàng trên, 2 thẻ hàng dưới mang bổ trợ hoặc +100, +200 điểm. Lá bài sẽ <b>xáo từ từ, chậm rãi trong đúng 7 giây</b>. Đặc biệt, hệ thống sẽ <b>khóa hoàn toàn tính năng nhấp chuột</b> cho đến khi bài sáng lên báo hiệu hoàn thành xáo bài mới cho chọn!
         </div>
         <div style="text-align: center;">
             <button class="start-game-btn" onclick="startGame()">Bắt Đầu Vượt Ải Ngay</button>
@@ -584,13 +587,11 @@
         <p id="bonus-instructions" style="font-size: 1.2rem; color: #00fff0; font-weight: bold; text-align: center;">Chuẩn bị...</p>
 
         <div class="cards-board-container" id="cards-board-element">
-            <!-- Hàng trên: 3 thẻ -->
             <div class="cards-row" id="row-top">
                 <div id="card-0" class="card-slot face-down" onclick="flipCard(0, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-0">?</div></div></div>
                 <div id="card-1" class="card-slot face-down" onclick="flipCard(1, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-1">?</div></div></div>
                 <div id="card-2" class="card-slot face-down" onclick="flipCard(2, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-2">?</div></div></div>
             </div>
-            <!-- Hàng dưới: 2 thẻ -->
             <div class="cards-row" id="row-bottom">
                 <div id="card-3" class="card-slot face-down" onclick="flipCard(3, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-3">?</div></div></div>
                 <div id="card-4" class="card-slot face-down" onclick="flipCard(4, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-4">?</div></div></div>
@@ -620,61 +621,75 @@
 </div>
 
 <script>
-    // MA TRẬN 110 CÂU HỎI LÀM MỚI TOÀN BỘ: 50 CÂU NGỮ PHÁP 3 THÌ + 60 CÂU TỪ VỰNG TIẾNG ANH LỚP 9 GLOBAL SUCCESS
     const quizData = [
         // --- 50 CÂU NGỮ PHÁP MỚI: HIỆN TẠI ĐƠN, TIẾP DIỄN, HOÀN THÀNH (DẤU HIỆU NHẬN BIẾT RÕ RÀNG) ---
-        { type: "mcq", q: "Our English teacher _________ to the radio every evening to update her news.", a: "listen", b: "listens", c: "is listening", d: "has listened", correct: "B", exp: "Dấu hiệu 'every evening' chỉ thói quen đều đặn ở Hiện tại đơn. Chủ ngữ 'Our English teacher' số ít nên động từ thêm -s." },
-        { type: "mcq", q: "Look! A huge green spaceship _________ down toward the city center.", a: "fly", b: "flies", c: "is flying", d: "has flown", correct: "C", exp: "Dấu hiệu từ mệnh lệnh 'Look!' báo hiệu hành động đang diễn ra tại thời điểm nói nên chia Hiện tại tiếp diễn." },
-        { type: "mcq", q: "I can't go out with you because I _________ my science project yet.", a: "don't finish", b: "am not finishing", c: "haven't finished", d: "hasn't finished", correct: "C", exp: "Dấu hiệu 'yet' đứng cuối câu phủ định là đặc trưng của thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "Mr. David _________ in Ho Chi Minh City since he moved to Viet Nam in 2018.", a: "live", b: "lives", c: "is living", d: "has lived", correct: "D", exp: "Dấu hiệu 'since + mốc thời gian / mệnh đề quá khứ' là đặc trưng của thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "Listen! Someone _________ the doorbell outside. Can you open it?", a: "ring", b: "is ringing", c: "rings", d: "has rung", correct: "B", exp: "Dấu hiệu gọi chú ý 'Listen!' chỉ hành động đang xảy ra đồng thời lúc nói, dùng Hiện tại tiếp diễn." },
-        { type: "mcq", q: "Water _________ down hills naturally because of gravity.", a: "flow", b: "flows", c: "is flowing", d: "has flowed", correct: "B", exp: "Diễn tả một sự thật hiển nhiên, chân lý khoa học tự nhiên dùng thì Hiện tại đơn." },
-        { type: "mcq", q: "At the moment, the computer technicians _________ the server room.", a: "repair", b: "repairs", c: "are repairing", d: "have repaired", correct: "C", exp: "Dấu hiệu 'At the moment' (ngay bây giờ) chỉ hành động đang diễn ra, chia thì Hiện tại tiếp diễn." },
-        { type: "mcq", q: "Mary and Peter _________ each other for more than ten years.", a: "know", b: "knows", c: "are knowing", d: "have known", correct: "D", exp: "Dấu hiệu 'for + khoảng thời gian' chỉ hành động kéo dài từ quá khứ đến hiện tại, dùng Hiện tại hoàn thành." },
-        { type: "mcq", q: "We rarely _________ fast food during weekdays because our mom cooks healthy meals.", a: "eat", b: "eats", c: "are eating", d: "have eaten", correct: "A", exp: "Trạng từ tần suất 'rarely' chỉ thói quen ở Hiện tại đơn, chủ ngữ 'We' số nhiều động từ giữ nguyên." },
-        { type: "mcq", q: "Keep quiet! The online conference _________ on the main screen now.", a: "broadcast", b: "broadcasts", c: "is broadcasting", d: "has broadcast", correct: "C", exp: "Cụm từ mệnh lệnh 'Keep quiet!' và trạng từ 'now' yêu cầu dùng thì Hiện tại tiếp diễn." },
-        { type: "mcq", q: "They _________ that famous historical museum twice this month.", a: "visit", b: "visits", c: "are visiting", d: "have visited", correct: "D", exp: "Diễn tả số lần làm gì đó tính đến thời điểm hiện tại ('twice' - hai lần) dùng Hiện tại hoàn thành." },
-        { type: "mcq", q: "Wood Always _________ on water, but iron sinks quickly.", a: "float", b: "floats", c: "is floating", d: "has floated", correct: "B", exp: "Diễn tả một sự thật hiển nhiên, thuộc tính vật lý khoa học luôn luôn dùng thì Hiện tại đơn." },
-        { type: "mcq", q: "Right now, the students _________ hard for the upcoming Global Success English exam.", a: "study", b: "are studying", c: "have studied", d: "studies", correct: "B", exp: "Dấu hiệu 'Right now' (ngay lúc này) chỉ hành động đang tiếp diễn, chia Hiện tại tiếp diễn." },
-        { type: "mcq", q: "He is very excited because he _________ a beautiful scholarship recently.", a: "win", b: "wins", c: "is winning", d: "has won", correct: "D", exp: "Dấu hiệu 'recently' (gần đây) chỉ hành động vừa mới xảy ra, chia thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "The local market always _________ early at 5:30 AM every morning.", a: "open", b: "opens", c: "is opening", d: "has opened", correct: "B", exp: "Dấu hiệu lịch trình 'every morning' và 'always' chỉ tần suất lặp lại ở Hiện tại đơn." },
-        { type: "mcq", q: "Look! The little children _________ beautiful lanterns in the handicraft workshop.", a: "make", b: "makes", c: "are making", d: "have made", correct: "C", exp: "Dấu hiệu 'Look!' thu hút sự chú ý vào một sự việc đang diễn ra trước mắt, dùng Hiện tại tiếp diễn." },
-        { type: "mcq", q: "Up to the present, our local government _________ many old historical houses.", a: "protect", b: "protects", c: "is protecting", d: "has protected", correct: "D", exp: "Dấu hiệu 'Up to the present' (cho đến nay) chỉ kết quả hành động kéo dài, dùng Hiện tại hoàn thành." },
-        { type: "mcq", q: "My younger sister seldom _________ comedy movies on TV.", a: "watch", b: "watches", c: "is watching", d: "has watched", correct: "B", exp: "Dấu hiệu trạng từ tần suất 'seldom' chia ở thì Hiện tại đơn, chủ ngữ số ít 'My younger sister' thêm -es." },
-        { type: "mcq", q: "Be careful! The train _________ into the station right now.", a: "come", b: "comes", c: "is coming", d: "has come", correct: "C", exp: "Lời cảnh báo 'Be careful!' kết hợp 'right now' chứng tỏ hành động đang diễn ra, chia Hiện tại tiếp diễn." },
-        { type: "mcq", q: "This is the first time that my father _________ a metropolitan city.", a: "see", b: "is seeing", c: "has seen", d: "seen", correct: "C", exp: "Cấu trúc trải nghiệm 'This is the first time + S + Hiện tại hoàn thành'." },
-        { type: "mcq", q: "The moon _________ around the Earth in about 27 days.", a: "go", b: "goes", c: "is going", d: "has gone", correct: "B", exp: "Chân lý vũ trụ khoa học hiển nhiên luôn chia ở thì Hiện tại đơn, 'The moon' số ít thêm -es." },
-        { type: "mcq", q: "At present, my family _________ a new craft village in northern Viet Nam.", a: "explore", b: "explores", c: "is exploring", d: "has explored", correct: "C", exp: "Dấu hiệu 'At present' (hiện tại) diễn tả hành động đang diễn ra tại thời điểm nói, dùng Hiện tại tiếp diễn." },
-        { type: "mcq", q: "I _________ never _________ such a traditional handicraft product before.", a: "do / buy", b: "are / buying", c: "have / bought", d: "has / bought", correct: "C", exp: "Cấu trúc kinh nghiệm 'have/has + never + V3 + before' thuộc thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "Plants _________ sunlight and water to perform photosynthesis.", a: "need", b: "needs", c: "are needing", d: "have needed", correct: "A", exp: "Sự thật hiển nhiên về sinh học dùng Hiện tại đơn. Danh từ số nhiều 'Plants' động từ nguyên mẫu." },
-        { type: "mcq", q: "Hurry up! The guide _________ instructions for the city tour.", a: "gives", b: "is giving", c: "has given", d: "give", correct: "B", exp: "Từ hối thúc 'Hurry up!' báo hiệu sự việc đang diễn ra ngay lúc nói, chia Hiện tại tiếp diễn." },
-        { type: "mcq", q: "How long _________ you _________ from peer pressure at school?", a: "do / suffer", b: "are / suffering", c: "have / suffered", d: "did / suffer", correct: "C", exp: "Câu hỏi 'How long...?' (Bao lâu rồi) dùng để hỏi khoảng thời gian kéo dài ở Hiện tại hoàn thành." },
-        { type: "mcq", q: "My brother _________ martial arts every afternoon to reduce his stress.", a: "do", b: "does", c: "is doing", d: "has done", correct: "B", exp: "Dấu hiệu 'every afternoon' chỉ thói quen rèn luyện đều đặn hàng ngày, dùng Hiện tại đơn." },
-        { type: "mcq", q: "Watch out! A heavy truck _________ toward the narrow bridge.", a: "drive", b: "drives", c: "is driving", d: "has driven", correct: "C", exp: "Lời cảnh báo nguy hiểm khẩn cấp 'Watch out!' chứng tỏ xe đang lao tới, chia Hiện tại tiếp diễn." },
-        { type: "mcq", q: "We _________ just _________ our final test scores from the teacher.", a: "am / receiving", b: "have / received", c: "do / receive", d: "has / received", correct: "B", exp: "Vị trí trạng từ 'just' nằm giữa trợ động từ 'have/has' và V3 trong thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "Artisans are skilled people who _________ beautiful things by hand.", a: "make", b: "makes", c: "are making", d: "have made", correct: "A", exp: "Định nghĩa một nhóm đối tượng cố định chia ở Hiện tại đơn, đại từ quan hệ 'who' thay thế danh từ số nhiều dùng nguyên mẫu." },
-        { type: "mcq", q: "Don't shout! The students _________ their cognitive skills test in the next room.", a: "take", b: "takes", c: "are taking", d: "have taken", correct: "C", exp: "Cụm từ mệnh lệnh 'Don't shout!' chứng tỏ hành động đang xảy ra, dùng Hiện tại tiếp diễn." },
-        { type: "mcq", q: "So far, that charitable organization _________ millions of clean water bottles.", a: "provide", b: "provides", c: "is providing", d: "has provided", correct: "D", exp: "Dấu hiệu 'So far' (cho đến nay) chỉ tổng kết kết quả hành động tính đến hiện tại, dùng Hiện tại hoàn thành." },
-        { type: "mcq", q: "A magnet always _________ iron filings and other magnetic objects.", a: "attract", b: "attracts", c: "is attracting", d: "has attracted", correct: "B", exp: "Hiện tượng vật lý tự nhiên bất biến luôn chia ở thì Hiện tại đơn." },
-        { type: "mcq", q: "Where is Nam? - He _________ a research paper about urban lifestyle at present.", a: "read", b: "reads", c: "is reading", d: "has read", correct: "C", exp: "Trả lời cho câu hỏi vị trí kết hợp từ nhận biết 'at present' chia thì Hiện tại tiếp diễn." },
-        { type: "mcq", q: "They _________ already _________ all the tickets for the city tour next week.", a: "are / buying", b: "have / bought", c: "do / buy", d: "has / bought", correct: "B", exp: "Từ nhận biết 'already' đứng giữa cấu trúc thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "The bus to the pottery village _________ off at exactly 8:15 AM tomorrow.", a: "take", b: "takes", c: "is taking", d: "has taken", correct: "B", exp: "Diễn tả lịch trình, thời gian biểu công cộng có sẵn dùng thì Hiện tại đơn." },
-        { type: "mcq", q: "Look! The professional artisan _________ a beautiful clay pot on the wheel.", a: "mould", b: "moulds", c: "is moulding", d: "has moulded", correct: "C", exp: "Dấu hiệu 'Look!' hướng sự quan sát vào hành động đang tiếp diễn tại thời điểm nói." },
-        { type: "mcq", q: "Mrs. Green _________ this traditional weaving method for over thirty years.", a: "use", b: "uses", c: "is using", d: "has used", correct: "D", exp: "Dấu hiệu 'for + khoảng thời gian dài' (hơn 30 năm) chia thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "My father often _________ to the local workshop on weekends.", a: "go", b: "goes", c: "is going", d: "has gone", correct: "B", exp: "Dấu hiệu thói quen 'often' kết hợp 'on weekends' dùng Hiện tại đơn, chủ ngữ ngôi thứ 3 số ít thêm -es." },
-        { type: "mcq", q: "Listen! Birds _________ cheerfully in the green suburban forest.", a: "sing", b: "sings", c: "are singing", d: "have sung", correct: "C", exp: "Dấu hiệu 'Listen!' chỉ hành động phát ra âm thanh đang diễn ra tức thời, dùng Hiện tại tiếp diễn." },
-        { type: "mcq", q: "I _________ not met my old classmates since we _________ secondary school.", a: "have / left", b: "has / left", c: "am / leaving", d: "do / leave", correct: "A", exp: "Cấu trúc phối hợp thì chuẩn: Trước 'since' chia Hiện tại hoàn thành, sau 'since' chia Quá khứ đơn." },
-        { type: "mcq", q: "Sound _________ slower than light in normal air conditions.", a: "travel", b: "travels", c: "is traveling", d: "has traveled", correct: "B", exp: "Sự thật khoa học khách quan hiển nhiên luôn chia ở thì Hiện tại đơn." },
-        { type: "mcq", q: "Right now, they _________ a heavy box of old souvenirs to the new house.", a: "carry", b: "carries", c: "are carrying", d: "have carried", correct: "C", exp: "Dấu hiệu 'Right now' chỉ hành động đang diễn ra lúc nói, dùng Hiện tại tiếp diễn." },
-        { type: "mcq", q: "She _________ never _________ under such a high level of stress before.", a: "is / being", b: "does / be", c: "has / been", d: "have / been", correct: "C", exp: "Diễn tả kinh nghiệm chưa từng trải qua tính đến nay, dùng Hiện tại hoàn thành với chủ ngữ 'She' đi kèm 'has'." },
-        { type: "mcq", q: "The grand metropolitan library _________ at 9 PM every night.", a: "close", b: "closes", c: "is closing", d: "has closed", correct: "B", exp: "Giờ giấc đóng/mở cửa của cơ quan, địa điểm công cộng cố định chia Hiện tại đơn." },
-        { type: "mcq", q: "Look! A lot of tourists _________ photos of the traditional handicrafts.", a: "take", b: "takes", c: "are taking", d: "have taken", correct: "C", exp: "Dấu hiệu 'Look!' thu hút sự chú ý vào hành động chụp ảnh đang diễn ra của du khách." },
-        { type: "mcq", q: "We _________ already _________ our survey about adolescent psychological health.", a: "have / finished", b: "are / finishing", c: "do / finish", d: "has / finished", correct: "A", exp: "Cấu trúc Hiện tại hoàn thành dạng khẳng định kết hợp trạng từ 'already'." },
-        { type: "mcq", q: "They usually _________ a big celebration during the traditional festival.", a: "have", b: "has", c: "are having", d: "have had", correct: "A", exp: "Dấu hiệu tần suất 'usually' chia Hiện tại đơn, chủ ngữ số nhiều 'They' đi với 'have'." },
-        { type: "mcq", q: "At the moment, the lead doctor _________ a very complicated heart operation.", a: "perform", b: "performs", c: "is performing", d: "has performed", correct: "C", exp: "Dấu hiệu 'At the moment' yêu cầu chia động từ ở thì Hiện tại tiếp diễn." },
-        { type: "mcq", q: "He _________ worked as an artisan for ten years, so he is highly skilled.", a: "is", b: "does", c: "has", d: "have", correct: "C", exp: "Có cụm từ 'for ten years' và động từ cột 3 'worked' nên dùng trợ động từ 'has' cho ngôi thứ 3 số ít." },
+        { type: "mcq", q: "The sun _________ in the East and sets in the West every day.", a: "rise", b: "rises", c: "is rising", d: "has risen", correct: "B", exp: "Diễn tả một chân lý, sự thật hiển nhiên luôn dùng thì Hiện tại đơn." },
+        { type: "mcq", q: "Listen! The school choir _________ a traditional song in the music room.", a: "sing", b: "sings", c: "is singing", d: "has sung", correct: "C", exp: "Dấu hiệu 'Listen!' báo hiệu hành động đang diễn ra tại thời điểm nói nên chia Hiện tại tiếp diễn." },
+        { type: "mcq", q: "They are very happy because they _________ all their assignments already.", a: "finish", b: "are finishing", c: "have finished", d: "has finished", correct: "C", exp: "Dấu hiệu 'already' chỉ hành động vừa hoàn thành tính đến thời điểm hiện tại." },
+        { type: "mcq", q: "My father _________ this ancient clock since he visited Hue in 2015.", a: "keep", b: "keeps", c: "is keeping", d: "has kept", correct: "D", exp: "Dấu hiệu 'since + mốc thời gian' là cấu trúc đặc trưng của thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "Look! The little boy _________ down the street without looking at the traffic.", a: "run", b: "runs", c: "is running", d: "has run", correct: "C", exp: "Dấu hiệu 'Look!' thu hút sự chú ý vào hành động đang xảy ra đồng thời lúc nói." },
+        { type: "mcq", q: "Water _________ at 100 degrees Celsius under normal pressure.", a: "boil", b: "boils", c: "is boiling", d: "has boiled", correct: "B", exp: "Diễn tả một chân lý khoa học bất biến dùng thì Hiện tại đơn." },
+        { type: "mcq", q: "At the moment, the volunteers _________ garbage along the local beach.", a: "collect", b: "collects", c: "are collecting", d: "have collected", correct: "C", exp: "Dấu hiệu 'At the moment' (ngay lúc này) chỉ hành động đang tiếp diễn." },
+        { type: "mcq", q: "Jane and Anna _________ close friends for more than five years.", a: "be", b: "are being", c: "have been", d: "has been", correct: "C", exp: "Dấu hiệu 'for + khoảng thời gian' chỉ hành động kéo dài từ quá khứ đến hiện tại." },
+        { type: "mcq", q: "We occasionally _________ traditional pottery villages on weekends.", a: "visit", b: "visits", c: "are visiting", d: "have visited", correct: "A", exp: "Trạng từ tần suất 'occasionally' chỉ thói quen lặp lại ở Hiện tại đơn." },
+        { type: "mcq", q: "Be quiet! The baby _________ in the next room right now.", a: "sleep", b: "sleeps", c: "is sleeping", d: "has slept", correct: "C", exp: "Cụm từ mệnh lệnh 'Be quiet!' kết hợp 'right now' yêu cầu chia Hiện tại tiếp diễn." },
+        { type: "mcq", q: "He _________ that spectacular movie three times this month.", a: "watch", b: "watches", c: "is watching", d: "has watched", correct: "D", exp: "Diễn tả số lần làm một việc tính đến thời điểm hiện tại dùng Hiện tại hoàn thành." },
+        { type: "mcq", q: "Light _________ much faster than sound in any environment.", a: "travel", b: "travels", c: "is traveling", d: "has traveled", correct: "B", exp: "Diễn tả sự thật khoa học hiển nhiên luôn dùng thì Hiện tại đơn." },
+        { type: "mcq", q: "Right now, the heavy rain _________ flooding in many downtown areas.", a: "cause", b: "causes", c: "is causing", d: "has caused", correct: "C", exp: "Dấu hiệu 'Right now' chỉ một hành động đang trực tiếp xảy ra gây ảnh hưởng." },
+        { type: "mcq", q: "She is thrilled because she _________ a prestigious scholarship recently.", a: "receive", b: "receives", c: "is receiving", d: "has received", correct: "D", exp: "Dấu hiệu 'recently' (gần đây) chỉ hành động vừa mới xảy ra, chia Hiện tại hoàn thành." },
+        { type: "mcq", q: "The local library always _________ at exactly 5:00 PM on weekdays.", a: "close", b: "closes", c: "is closing", d: "has closed", correct: "B", exp: "Diễn tả lịch trình, thời khóa biểu cố định luôn dùng Hiện tại đơn." },
+        { type: "mcq", q: "Look! The skilled artisans _________ unique bamboo baskets.", a: "weave", b: "weaves", c: "are weaving", d: "have woven", correct: "C", exp: "Dấu hiệu 'Look!' thu hút sự chú ý vào hành động đang diễn ra trước mắt." },
+        { type: "mcq", q: "Up to now, our community _________ over 500 trees in the park.", a: "plant", b: "plants", c: "is planting", d: "has planted", correct: "D", exp: "Dấu hiệu 'Up to now' (cho đến nay) chỉ kết quả hành động dùng Hiện tại hoàn thành." },
+        { type: "mcq", q: "My younger brother seldom _________ horror movies alone at night.", a: "watch", b: "watches", c: "is watching", d: "has watched", correct: "B", exp: "Dấu hiệu trạng từ tần suất 'seldom' chia ở thì Hiện tại đơn, chủ ngữ số ít." },
+        { type: "mcq", q: "Watch out! That speeding motorcycle _________ straight toward us.", a: "come", b: "comes", c: "is coming", d: "has come", correct: "C", exp: "Lời cảnh báo 'Watch out!' báo hiệu một sự việc khẩn cấp đang xảy ra." },
+        { type: "mcq", q: "This is the first time that my parents _________ a luxury cruise ship.", a: "board", b: "is boarding", c: "have boarded", d: "has boarded", correct: "C", exp: "Cấu trúc trải nghiệm 'This is the first time + S + Hiện tại hoàn thành'." },
+        { type: "mcq", q: "The Earth _________ around the sun once every 365 days.", a: "revolve", b: "revolves", c: "is revolving", d: "has revolved", correct: "B", exp: "Chân lý vũ trụ tự nhiên bất biến luôn chia ở thì Hiện tại đơn." },
+        { type: "mcq", q: "At present, the tech team _________ a new application for online learning.", a: "develop", b: "develops", c: "is developing", d: "has developed", correct: "C", exp: "Dấu hiệu 'At present' diễn tả hành động đang diễn ra tại thời điểm nói." },
+        { type: "mcq", q: "I _________ never _________ such a delicious traditional dish before.", a: "do / taste", b: "are / tasting", c: "have / tasted", d: "has / tasted", correct: "C", exp: "Cấu trúc kinh nghiệm 'have/has + never + V3 + before' thuộc thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "Living organisms _________ water and oxygen to survive.", a: "need", b: "needs", c: "are needing", d: "have needed", correct: "A", exp: "Sự thật hiển nhiên về sinh học dùng Hiện tại đơn với danh từ số nhiều giữ nguyên mẫu." },
+        { type: "mcq", q: "Hurry up! The tour bus _________ outside the hotel entrance.", a: "wait", b: "waits", c: "is waiting", d: "has waited", correct: "C", exp: "Từ hối thúc 'Hurry up!' chứng tỏ xe đang đợi ngay lúc này." },
+        { type: "mcq", q: "How long _________ you _________ from peer pressure at high school?", a: "do / suffer", b: "are / suffering", c: "have / suffered", d: "did / suffer", correct: "C", exp: "Câu hỏi 'How long...?' (Bao lâu rồi) dùng để hỏi khoảng thời gian ở Hiện tại hoàn thành." },
+        { type: "mcq", q: "My sister _________ yoga every morning to maintain her physical health.", a: "do", b: "does", c: "is doing", d: "has done", correct: "B", exp: "Dấu hiệu 'every morning' chỉ thói quen đều đặn hàng ngày dùng Hiện tại đơn." },
+        { type: "mcq", q: "Don't move! A dangerous snake _________ through the tall grass near you.", a: "crawl", b: "crawls", c: "is crawling", d: "has crawled", correct: "C", exp: "Lời cảnh báo khẩn cấp 'Don't move!' chứng tỏ hành động đang diễn ra tức thời." },
+        { type: "mcq", q: "We _________ just _________ our test results from the teacher.", a: "am / receiving", b: "have / received", c: "do / receive", d: "has / received", correct: "B", exp: "Trạng từ 'just' nằm giữa trợ động từ 'have' và V3 trong thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "An architect is a professional who _________ beautiful buildings.", a: "design", b: "designs", c: "is designing", d: "has designed", correct: "B", exp: "Định nghĩa một nghề nghiệp cố định luôn chia ở thì Hiện tại đơn." },
+        { type: "mcq", q: "Don't make noise! The principal _________ an important speech now.", a: "give", b: "gives", c: "is giving", d: "has given", correct: "C", exp: "Mệnh lệnh 'Don't make noise!' và 'now' yêu cầu dùng thì Hiện tại tiếp diễn." },
+        { type: "mcq", q: "So far, that charity _________ thousands of warm clothes to poor children.", a: "provide", b: "provides", c: "is providing", d: "has provided", correct: "D", exp: "Dấu hiệu 'So far' (cho đến nay) chỉ tổng kết kết quả hành động dùng Hiện tại hoàn thành." },
+        { type: "mcq", q: "A magnet always _________ iron pieces and some metal materials.", a: "attract", b: "attracts", c: "is attracting", d: "has attracted", correct: "B", exp: "Hiện tượng vật lý tự nhiên bất biến luôn chia ở thì Hiện tại đơn." },
+        { type: "mcq", q: "Where is Peter? - He _________ a novel in the library at present.", a: "read", b: "reads", c: "is reading", d: "has read", correct: "C", exp: "Hành động đang diễn ra để trả lời cho câu hỏi vị trí kết hợp trạng từ 'at present'." },
+        { type: "mcq", q: "They _________ already _________ all the ingredients for the barbecue tonight.", a: "are / buying", b: "have / bought", c: "do / buy", d: "has / bought", correct: "B", exp: "Từ nhận biết 'already' đứng giữa cấu trúc thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "The flight to London _________ off at exactly 6:30 AM tomorrow schedule.", a: "take", b: "takes", c: "is taking", d: "has taken", correct: "B", exp: "Diễn tả lịch trình, mốc thời gian biểu công cộng có sẵn dùng thì Hiện tại đơn." },
+        { type: "mcq", q: "Look! The professional potters _________ clay into beautiful vases.", a: "mould", b: "moulds", c: "are moulding", d: "have moulded", correct: "C", exp: "Dấu hiệu 'Look!' hướng sự quan sát vào hành động đang tiếp diễn." },
+        { type: "mcq", q: "Mr. Smith _________ English in this secondary school for twenty years.", a: "teach", b: "teaches", c: "is teaching", d: "has taught", correct: "D", exp: "Dấu hiệu 'for + khoảng thời gian dài' chia thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "Our family often _________ to the local church on Sundays.", a: "go", b: "goes", c: "is going", d: "has gone", correct: "B", exp: "Dấu hiệu thói quen 'often' kết hợp 'on Sundays' dùng Hiện tại đơn với ngôi thứ 3 số ít." },
+        { type: "mcq", q: "Listen! Some birds _________ sweetly in the garden tree.", a: "sing", b: "sings", c: "are singing", d: "have sung", correct: "C", exp: "Dấu hiệu 'Listen!' chỉ hành động phát ra âm thanh đang diễn ra tức thời." },
+        { type: "mcq", q: "I _________ not seen my old friends since we _________ primary school.", a: "have / left", b: "has / left", c: "am / leaving", d: "do / leave", correct: "A", exp: "Cấu trúc phối thì: Trước 'since' chia Hiện tại hoàn thành, sau 'since' chia Quá khứ đơn." },
+        { type: "mcq", q: "Plants _________ carbon dioxide and release oxygen during the day.", a: "absorb", b: "absorbs", c: "are absorbing", d: "have absorbed", correct: "A", exp: "Sự thật khoa học khách quan hiển nhiên luôn chia ở thì Hiện tại đơn." },
+        { type: "mcq", q: "Right now, the construction workers _________ a heavy iron bar up the roof.", a: "lift", b: "lifts", c: "are lifting", d: "have lifted", correct: "C", exp: "Dấu hiệu 'Right now' chỉ hành động đang diễn ra lúc nói." },
+        { type: "mcq", q: "She _________ never _________ in front of a large audience before.", a: "is / speaking", b: "does / speak", c: "has / spoken", d: "have / spoken", correct: "C", exp: "Diễn tả kinh nghiệm chưa từng trải qua tính đến nay dùng Hiện tại hoàn thành." },
+        { type: "mcq", q: "The major supermarket near my house _________ at 10 PM every night.", a: "close", b: "closes", c: "is closing", d: "has closed", correct: "B", exp: "Giờ giấc đóng/mở cửa của cơ quan, địa điểm công cộng cố định chia Hiện tại đơn." },
+        { type: "mcq", q: "Look! A crowd of spectators _________ photos of the foreign soccer star.", a: "take", b: "takes", c: "are taking", d: "have taken", correct: "C", exp: "Dấu hiệu 'Look!' thu hút sự chú ý vào hành động chụp ảnh đang diễn ra." },
+        { type: "mcq", q: "We _________ already _________ our quarterly report for the English club.", a: "have / prepared", b: "are / preparing", c: "do / prepare", d: "has / prepared", correct: "A", exp: "Cấu trúc Hiện tại hoàn thành dạng khẳng định kết hợp trạng từ 'already'." },
+        { type: "mcq", q: "They usually _________ a family reunion during the traditional Lunar New Year.", a: "have", b: "has", c: "are having", d: "have had", correct: "A", exp: "Dấu hiệu tần suất 'usually' chia Hiện tại đơn với danh từ số nhiều." },
+        { type: "mcq", q: "At the moment, the surgeon _________ a very critical operation.", a: "perform", b: "performs", c: "is performing", d: "has performed", correct: "C", exp: "Dấu hiệu 'At the moment' yêu cầu chia động từ ở thì Hiện tại tiếp diễn." },
+        { type: "mcq", q: "He _________ lived in this metropolis for a decade, so he knows it well.", a: "is", b: "does", c: "has", d: "have", correct: "C", exp: "Có cụm từ 'for a decade' và động từ V3 'lived' nên dùng trợ động từ 'has' cho ngôi số ít." },
 
-        // --- 60 CÂU TỪ VỰNG LỚP 9 (GLOBAL SUCCESS): 30 CÂU TRẮC NGHIỆM XÁC NHẬN NGHĨA ---
+        // --- 60 CÂU TỪ VỰNG LỚP 9 (GLOBAL SUCCESS): 30 CÂU TRẮC NGHIỆM XÁC NHẬN NGHĨA (15 CÂU ĐẦU LÀ TỪ VỰNG MỚI TỪ ẢNH) ---
+        { type: "mcq", q: "Từ vựng 'Attractive' mang ý nghĩa nào sau đây?", a: "xấu xí, thô kệch", b: "thu hút, lôi cuốn, quyến rũ", c: "nhạt nhẽo, đơn điệu", d: "giàu có, thịnh vượng", correct: "B", exp: "Attractive nghĩa là thu hút, lôi cuốn, quyến rũ người khác bởi ngoại hình hoặc tính chất." },
+        { type: "mcq", q: "Từ vựng 'Handsome' mang ý nghĩa nào sau đây?", a: "thấp bé, lùn tịt", b: "mập mạp, béo phì", c: "đẹp trai, lịch lãm", d: "gầy gò, ốm yếu", correct: "C", exp: "Handsome dùng để tả vẻ ngoài đẹp trai, lịch lãm ở nam giới." },
+        { type: "mcq", q: "Từ vựng 'Stunning' mang ý nghĩa nào sau đây?", a: "lộng lẫy, cực kỳ xinh đẹp", b: "bình thường, đơn giản", c: "luộm thuộm, bẩn thỉu", d: "buồn bã, ủ rũ", correct: "A", exp: "Stunning nghĩa là vô cùng lộng lẫy, cực kỳ xinh đẹp gây ấn tượng mạnh." },
+        { type: "mcq", q: "Từ vựng 'Elegant' mang ý nghĩa nào sau đây?", a: "thô lỗ, cục cằn", b: "thanh lịch, tao nhã", c: "nhanh nhẹn, lanh lợi", d: "chậm chạp, lười biếng", correct: "B", exp: "Elegant là phong thái thanh lịch, tao nhã trong cách ăn mặc hoặc cư xử." },
+        { type: "mcq", q: "Từ vựng 'Plain' mang ý nghĩa nào sau đây?", a: "sang trọng, quý phái", b: "lòe loẹt, sặc sỡ", c: "bình thường, đơn giản, giản dị", d: "bí ẩn, khó hiểu", correct: "C", exp: "Plain dùng để tả cái gì đó bình thường, đơn giản, không có hoa văn hay nét nổi bật." },
+        { type: "mcq", q: "Từ vựng 'Slim' mang ý nghĩa nào sau đây?", a: "mảnh khảnh, thon thả", b: "cao lớn, vạm vỡ", c: "nặng nề, chậm chạp", d: "yếu đuối, mệt mỏi", correct: "A", exp: "Slim miêu tả vóc dáng người mảnh khảnh, thon thả một cách khỏe mạnh." },
+        { type: "mcq", q: "Từ vựng 'Overweight' mang ý nghĩa nào sau đây?", a: "thiếu cân, suy dinh dưỡng", b: "thừa cân, béo phì", c: "nhẹ nhàng, thanh thoát", d: "khỏe mạnh, dẻo dai", correct: "B", exp: "Overweight nghĩa là thừa cân, cơ thể tích tụ nhiều mỡ hơn bình thường." },
+        { type: "mcq", q: "Từ vựng 'Awkward' mang ý nghĩa nào sau đây?", a: "ngượng ngùng, lúng túng", b: "tự tin, dũng cảm", c: "khéo léo, tài tình", d: "vui vẻ, cởi mở", correct: "A", exp: "Awkward là cảm giác ngượng ngùng, lúng túng hoặc hành vi vụng về." },
+        { type: "mcq", q: "Từ vựng 'Self-conscious' mang ý nghĩa nào sau đây?", a: "tự cao, ngạo mạn", b: "tự ti, e dè, hay xấu hổ", c: "độc lập, tự chủ", d: "hướng ngoại, năng động", correct: "B", exp: "Self-conscious là tâm lý lo lắng, tự ti, e dè và hay xấu hổ về bản thân trước người khác." },
+        { type: "mcq", q: "Từ vựng 'Broad-shouldered' mang ý nghĩa nào sau đây?", a: "chân dài, cao ráo", b: "mặt tròn, phúc hậu", c: "vai rộng", d: "bụng to", correct: "C", exp: "Broad-shouldered là tính từ ghép miêu tả người có bờ vai rộng, vững chãi." },
+        { type: "mcq", q: "Từ vựng 'Pale-skinned' mang ý nghĩa nào sau đây?", a: "làn da nhợt nhạt / trắng bợt", b: "làn da đen nhẻm", c: "làn da hồng hào", d: "làn da mịn màng", correct: "A", exp: "Pale-skinned nghĩa là có làn da nhợt nhạt hoặc trắng bợt do thiếu nắng hoặc thiếu máu." },
+        { type: "mcq", q: "Từ vựng 'Sun-tanned' mang ý nghĩa nào sau đây?", a: "làn da trắng nõn", b: "làn da rám nắng", c: "làn da bị dị ứng", d: "làn da nhân tạo", correct: "B", exp: "Sun-tanned là làn da rám nắng, có màu nâu khỏe khoắn do tiếp xúc với ánh mặt trời." },
+        { type: "mcq", q: "Từ vựng 'Empathize' mang ý nghĩa nào sau đây?", a: "chỉ trích, phê phán", b: "đầu tư, phát triển", c: "đồng cảm", d: "bỏ lơ, phớt lờ", correct: "C", exp: "Empathize là động từ mang ý nghĩa hiểu và đồng cảm với cảm xúc của người khác." },
+        { type: "mcq", q: "Từ vựng 'Challenge' mang ý nghĩa nào sau đây?", a: "chấp nhận, đồng ý", b: "thách thức, hoài nghi", c: "bảo vệ, che chở", d: "từ bỏ, buông xuôi", correct: "B", exp: "Challenge nghĩa là đưa ra lời thách thức hoặc bày tỏ sự hoài nghi đối với điều gì." },
+        { type: "mcq", q: "Từ vựng 'Inclusive' mang ý nghĩa nào sau đây?", a: "hòa nhập, mang tính bao hàm", b: "bị cô lập, tách biệt", c: "độc quyền, hạn chế", d: "lạc hậu, cổ hủ", correct: "A", exp: "Inclusive nghĩa là mang tính bao hàm, chào đón tất cả mọi người cùng hòa nhập." },
         { type: "mcq", q: "Từ vựng 'artisan' (Unit 1) mang ý nghĩa nào sau đây?", a: "học sinh học nghề", b: "nghệ nhân, thợ thủ công lành nghề", c: "người bán hàng rong", d: "kiến trúc sư", correct: "B", exp: "artisan là nghệ nhân hoặc thợ lành nghề làm đồ bằng tay." },
         { type: "mcq", q: "Từ vựng 'handicraft' (Unit 1) mang ý nghĩa nào sau đây?", a: "phương tiện giao thông", b: "thiết bị điện tử", c: "sản phẩm thủ công mỹ nghệ", d: "môn thể thao mạo hiểm", correct: "C", exp: "handicraft là sản phẩm làm hoàn toàn bằng tay mang tính truyền thống văn hóa." },
         { type: "mcq", q: "Từ vựng 'attraction' (Unit 1) mang ý nghĩa nào sau đây?", a: "sự ô nhiễm môi trường", b: "điểm thu hút, điểm du lịch hấp dẫn", c: "sự thất bại trong thi cử", d: "nhà kho chứa đồ cũ", correct: "B", exp: "attraction trong ngành du lịch nghĩa là địa điểm hấp dẫn khách đến tham quan." },
@@ -689,25 +704,24 @@
         { type: "mcq", q: "Từ vựng 'adolescence' (Unit 3) mang ý nghĩa nào sau đây?", a: "tuổi xế chiều, già nua", b: "tuổi vị thành niên, thanh thiếu niên", c: "thời kỳ thơ ấu sơ sinh", d: "giai đoạn trưởng thành trung niên", correct: "B", exp: "adolescence là giai đoạn chuyển giao phát triển từ trẻ con thành người lớn." },
         { type: "mcq", q: "Từ vựng 'cognitive skill' (Unit 3) mang ý nghĩa nào sau đây?", a: "kỹ năng bơi thể thao", b: "kỹ năng nhận thức, tư duy não bộ", c: "kỹ năng nấu nướng cơ bản", d: "kỹ năng thêu thùa", correct: "B", exp: "cognitive skills là các kỹ năng liên quan mật thiết đến tư duy, não bộ và nhận thức." },
         { type: "mcq", q: "Từ vựng 'craftsman' (Unit 1) mang ý nghĩa nào sau đây?", a: "thợ thủ công giỏi", b: "phi công chuyên nghiệp", c: "nhạc sĩ sáng tác", d: "họa sĩ vẽ tranh dầu", correct: "A", exp: "craftsman đồng nghĩa với artisan, chỉ người thợ làm đồ thủ công mỹ nghệ có tay nghề cao." },
-        { type: "mcq", q: "Từ vựng 'embroider' (Unit 1) mang ý nghĩa nào sau đây?", a: "thêu thùa hoa văn lên vải", b: "đúc tượng đồng", c: "đan rổ bằng tre nứa", d: "gọt đẽo tượng gỗ", correct: "A", exp: "embroider nghĩa là dùng kim và chỉ màu để thêu các họa tiết hoa văn nghệ thuật." },
-        { type: "mcq", q: "Từ vựng 'weave' (Unit 1) mang ý nghĩa nào sau đây?", a: "đập vỡ cấu trúc", b: "dệt (vải), đan (rổ rác, chiếu)", c: "sơn phủ màu sắc", d: "vẽ tranh phong cảnh", correct: "B", exp: "weave là hành động dệt sợi thành vải hoặc đan lát các nguyên liệu tự nhiên." },
-        { type: "mcq", q: "Từ vựng 'mould' (Unit 1) mang ý nghĩa nào sau đây?", a: "đổ khuôn, đúc khuôn tạo hình", b: "cắt gọt thô sơ", c: "đốt cháy vật liệu", d: "lau rửa làm sạch", correct: "A", exp: "mould nghĩa là tạo dáng cho vật thể bằng cách đổ chất liệu lỏng vào một khuôn mẫu có sẵn." },
-        { type: "mcq", q: "Từ vựng 'multicultural' (Unit 2) mang ý nghĩa nào sau đây?", a: "đơn văn hóa nghèo nàn", b: "đa văn hóa, nhiều nền văn hóa", c: "lạc hậu lỗi thời", d: "hoang sơ chưa khai phá", correct: "B", exp: "multicultural nghĩa là bao gồm hoặc kết hợp nhiều phong tục và nền văn hóa khác nhau." },
-        { type: "mcq", q: "Từ vựng 'cosmopolitan' (Unit 2) mang ý nghĩa nào sau đây?", a: "mang tính quốc tế, chứa đựng người từ nhiều nơi", b: "nhỏ bé chật hẹp", c: "bị cô lập hoàn toàn", d: "thuộc về vùng nông thôn sâu", correct: "A", exp: "cosmopolitan chỉ một nơi có người từ khắp nơi trên thế giới sinh sống, mang đậm tính quốc tế." },
-        { type: "mcq", q: "Từ vựng 'downtown' (Unit 2) mang ý nghĩa nào sau đây?", a: "vùng đồi núi trập trùng", b: "khu trung tâm sầm uất / khu thương mại thành phố", c: "nhà kho bến bãi ngoài rìa", d: "bến tàu cá", correct: "B", exp: "downtown là khu vực trung tâm kinh tế, thương mại sầm uất nhất của một thành phố." },
-        { type: "mcq", q: "Từ vựng 'overwhelming' (Unit 2) mang ý nghĩa nào sau đây?", a: "choáng ngợp, quá tải tinh thần", b: "quá dễ dàng đơn giản", c: "nhẹ nhàng thư thái", d: "bình thường không có gì lạ", correct: "A", exp: "overwhelming chỉ cảm giác bị lấn át, choáng ngợp trước một điều gì đó quá lớn lao hoặc quá nhiều." },
-        { type: "mcq", q: "Từ vựng 'sculpture' (Unit 1) mang ý nghĩa nào sau đây?", a: "bức tranh vẽ chì", b: "tác phẩm điêu khắc, bức tượng", c: "bài hát dân ca", d: "bản thiết kế nhà", correct: "B", exp: "sculpture là nghệ thuật tạo hình ba chiều bằng đá, gỗ, gốm hoặc đồng (điêu khắc)." },
-        { type: "mcq", q: "Từ vựng 'boredom' (Unit 3) mang ý nghĩa nào sau đây?", a: "sự phấn khích cực độ", b: "sự buồn chán, tẻ nhạt vô vị", a: "sự kinh ngạc ngỡ ngàng", d: "sự hoảng sợ tột độ", correct: "B", exp: "boredom là trạng thái tâm lý chán nản khi không có việc gì làm hoặc không có gì hấp dẫn." },
-        { type: "mcq", q: "Từ vựng 'guidance' (Unit 3) mang ý nghĩa nào sau đây?", a: "sự tranh cãi nảy lửa", b: "sự hướng dẫn, chỉ dẫn, lời khuyên định hướng", c: "sự từ chối phũ phàng", d: "sự trừng phạt nghiêm khắc", correct: "B", exp: "guidance là sự chỉ đường dẫn lối, lời khuyên hữu ích từ người có chuyên môn hoặc kinh nghiệm." },
-        { type: "mcq", q: "Từ vựng 'self-study' (Unit 3) mang ý nghĩa nào sau đây?", a: "học nhóm đông người", b: "tự học, tự nghiên cứu cá nhân", c: "trốn học đi chơi", d: "thi cử căng thẳng", correct: "B", exp: "self-study có nghĩa là quá trình tự mình mày mò nghiên cứu học tập độc lập." },
-        { type: "mcq", q: "Từ vựng 'well-being' (Unit 3) mang ý nghĩa nào sau đây?", a: "sự giàu có tột bậc", b: "trạng thái hạnh phúc, khỏe mạnh, an sinh", c: "sự đau yếu bệnh tật", d: "sự nghèo đói túng quẫn", correct: "B", exp: "well-being chỉ sự thịnh vượng, an toàn, khỏe mạnh cả về mặt thể chất lẫn tinh thần." },
-        { type: "mcq", q: "Từ vựng 'workshop' (Unit 1) mang ý nghĩa nào sau đây?", a: "phòng tập thể hình", b: "phân xưởng, xưởng thực hành sản xuất", c: "thư viện lưu trữ sách", d: "công viên giải trí công cộng", correct: "B", exp: "workshop là không gian làm việc của thợ thủ công hoặc nơi diễn ra các buổi thảo luận thực hành ngắn hạn." },
-        { type: "mcq", q: "Từ vựng 'features' (Unit 1) mang ý nghĩa nào sau đây?", a: "đặc điểm, nét tính chất đặc trưng", b: "giá thành niêm yết", c: "lỗi kỹ thuật", d: "bao bì đóng gói bên ngoài", correct: "A", exp: "features là những nét đặc điểm nổi bật, tiêu biểu đáng chú ý của một sự vật hay địa điểm." },
-        { type: "mcq", q: "Từ vựng 'livable' (Unit 2) mang ý nghĩa nào sau đây?", a: "đáng sống, dễ sống (thành phố tốt)", b: "bị ô nhiễm nặng", c: "quá đắt đỏ không thể mua", d: "nguy hiểm đầy tội phạm", correct: "A", exp: "livable nói về một thành phố hoặc môi trường có điều kiện sống rất tốt, an toàn và dễ chịu." },
         { type: "mcq", q: "Từ vựng 'peer pressure' (Unit 3) mang ý nghĩa nào sau đây?", a: "áp lực từ phía cha mẹ", b: "áp lực từ bạn bè đồng trang lứa", c: "áp lực điểm số thi cử", d: "áp lực từ dư luận xã hội", correct: "B", exp: "peer pressure là áp lực tinh thần khiến một cá nhân phải làm theo những hành vi của nhóm bạn cùng tuổi." },
 
-        // --- 30 CÂU TỪ VỰNG TIẾNG ANH DẠNG ĐIỀN TỪ VIẾT TAY (WRITTEN TYPE GLOBAL SUCCESS LỚP 9) ---
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'nghệ nhân / thợ thủ công lành nghề': (a_ _ _ _ _n)", correct: "artisan", exp: "artisan là nghệ nhân làm đồ thủ công truyền thống." },
+        // --- 30 CÂU TỪ VỰNG TIẾNG ANH DẠNG ĐIỀN TỪ VIẾT TAY (15 CÂU ĐẦU LÀ TỪ VỰNG MỚI TỪ ẢNH) ---
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'thu hút, lôi cuốn, quyến rũ': (a_ _ _ _ _ _ _ _e)", correct: "attractive", exp: "attractive là tính từ chỉ sự lôi cuốn, thu hút." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'đẹp trai, lịch lãm' (dành cho nam): (h_ _ _ _ _ _e)", correct: "handsome", exp: "handsome nghĩa là đẹp trai, lịch lãm." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'lộng lẫy, cực kỳ xinh đẹp': (s_ _ _ _ _ _g)", correct: "stunning", exp: "stunning chỉ sự lộng lẫy, cực kỳ cuốn hút và xinh đẹp." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'thanh lịch, tao nhã': (e_ _ _ _nt)", correct: "elegant", exp: "elegant là phong cách tao nhã, thanh lịch." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'bình thường, đơn giản, giản dị': (p_ _ _n)", correct: "plain", exp: "plain chỉ vẻ ngoài đơn giản, không cầu kỳ phức tạp." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'mảnh khảnh, thon thả': (s_ _m)", correct: "slim", exp: "slim là vóc dáng thon thả, mảnh khảnh một cách đẹp đẽ." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'thừa cân': (o_ _ _ _ _ _ _ _t)", correct: "overweight", exp: "overweight nghĩa là thừa cân do quá trọng lượng quy định." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'ngượng ngùng, lúng túng': (a_ _ _ _rd)", correct: "awkward", exp: "awkward là trạng thái lúng túng, ngượng ngùng khi giao tiếp." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'tự ti, e dè, hay xấu hổ': (s_ _f-c_ _ _ _ _ _ _s)", correct: "self-conscious", exp: "self-conscious là trạng thái tự ti, e dè về bản thân." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'vai rộng' (từ ghép): (b_ _ _d-s_ _ _ _ _ _ _ _d)", correct: "broad-shouldered", exp: "broad-shouldered nghĩa là người sở hữu bờ vai rộng." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'làn da nhợt nhạt / trắng bợt': (p_ _e-s_ _ _ _ _d)", correct: "pale-skinned", exp: "pale-skinned là tính từ ghép chỉ làn da trắng bợt, nhợt nhạt." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'làn da rám nắng': (s_n-t_ _ _ _d)", correct: "sun-tanned", exp: "sun-tanned là làn da sẫm màu khỏe khoắn do được phơi nắng." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'đồng cảm' (động từ): (e_ _ _ _ _ _ze)", correct: "empathize", exp: "empathize là thấu hiểu và đồng cảm sâu sắc với hoàn cảnh người khác." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'thách thức, hoài nghi': (c_ _ _ _ _ _ge)", correct: "challenge", exp: "challenge là thách thức hoặc đưa ra sự hoài nghi chống lại điều gì." },
+        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'hòa nhập, mang tính bao hàm': (i_ _ _ _ _ _ve)", correct: "inclusive", exp: "inclusive mang tính bao hàm rộng rãi và chào đón hòa nhập." },
         { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'đồ thủ công mỹ nghệ': (h_ _ _ _ _ _ _ _ t)", correct: "handicraft", exp: "handicraft là sản phẩm mỹ nghệ tinh xảo làm bằng tay." },
         { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'vùng ngoại ô, ven đô thị': (s_ _ _ _b)", correct: "suburb", exp: "suburb là vùng rìa ven của một thành phố lớn." },
         { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'đông nghịt / tắc nghẽn giao thông': (c_ _ _ _ _ _ _d)", correct: "congested", exp: "congested là tình trạng kẹt xe, đường sá quá tải." },
@@ -722,20 +736,6 @@
         { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'khu trung tâm sầm uất của thành phố': (d_ _ _ _ _ _n)", correct: "downtown", exp: "downtown là khu phố trung tâm mua sắm sầm uất." },
         { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'choáng ngợp / quá tải tâm lý': (o_ _ _ _ _ _ _ _ _ _g)", correct: "overwhelming", exp: "overwhelming chỉ cảm giác choáng ngợp trước thông tin hay số lượng quá nhiều." },
         { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'tác phẩm điêu khắc / tượng đá': (s_ _ _ _ _ _ _e)", correct: "sculpture", exp: "sculpture là bức tượng nghệ thuật điêu khắc tinh tế." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'sự chỉ dẫn / lời khuyên định hướng': (g_ _ _ _ __e)", correct: "guidance", exp: "guidance là sự hướng dẫn từ thầy cô, cha mẹ giàu kinh nghiệm." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'hoạt động tự học / tự nghiên cứu': (s_ _ _-_ _ _ _y)", correct: "self-study", exp: "self-study là hoạt động tự mình học tập độc lập." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'phân xưởng sản xuất thực hành': (w_ _ _ _ __p)", correct: "workshop", exp: "workshop là phân xưởng làm đồ mỹ nghệ hoặc phòng thảo luận." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'giá cả phải chăng / hợp ví tiền': (a_ _ _ _ _ _ _ _e)", correct: "affordable", exp: "affordable là mức giá rẻ, hợp lý cho số đông người mua." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'đáng sống / dễ sống và an toàn': (l_ _ _ __e)", correct: "livable", exp: "livable city nghĩa là một thành phố vô cùng đáng sống." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'áp lực từ bạn bè đồng trang lứa': (p_ _r p_ _ _ _ __e)", correct: "peer pressure", exp: "peer pressure là áp lực tâm lý từ bạn bè cùng tuổi." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'tính xác thực / tính chất nguyên bản': (a_ _ _ _ _ _ _ _ _ _y)", correct: "authenticity", exp: "authenticity là giá trị thật, không phải đồ giả nhái." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'mang tính giao thoa đa văn hóa': (m_ _ _ _ _ _ _ _ _ _al)", correct: "multicultural", exp: "multicultural mang ý nghĩa bao gồm nhiều yếu tố văn hóa khác nhau." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'sự buồn chán / trạng thái tẻ nhạt': (b_ _ _ __m)", correct: "boredom", exp: "boredom là cảm giác tẻ nhạt vô vị khi rảnh rỗi quá mức." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'đặc điểm tính chất nổi bật đáng chú ý': (f_ _ __ _es)", correct: "features", exp: "features là các nét tính chất đặc trưng tiêu biểu của sự vật." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'trạng thái hạnh phúc và khỏe mạnh': (w_ _ _-_ _ __g)", correct: "well-being", exp: "well-being là tình trạng an sinh, khỏe mạnh và hạnh phúc." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'thành thạo / điêu luyện một kỹ năng': (p_ _ _ _ _ _ __t)", correct: "proficient", exp: "proficient nghĩa là thực hiện công việc một cách vô cùng thành thạo." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'thuộc về khu vực thành thị / đô thị': (u_ __n)", correct: "urban", exp: "urban thuộc về phố xá, thành thị, trái ngược hoàn toàn với rural." },
-        { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'sự kéo dài / sự mở rộng mở rộng thêm': (e_ _ _ _ _ __n)", correct: "extension", exp: "extension là sự mở rộng quy mô hoặc gia hạn thêm thời gian." },
         { type: "written", q: "Gõ từ tiếng Anh có nghĩa là 'ngôi làng truyền thống làm nghề thủ công': (c_ _ _t v_ _ _ __e)", correct: "craft village", exp: "craft village là tên gọi các làng nghề thủ công truyền thống ở Việt Nam." }
     ];
 
@@ -753,7 +753,8 @@
     let activeNoTimer = false; 
     
     let bonusRoundCount = 0; 
-    let initialBonusOrder = [0, 1, 2, 3, 4];
+    let bonusPool = [];
+    let hasPickedBonus = false;
 
     const canvas = document.getElementById("laser-canvas");
     const ctx = canvas.getContext("2d");
@@ -1115,7 +1116,8 @@
 
     function nextQuestion() {
         let naturalQuestionNumber = currentQuestionIndex + 1;
-        if (naturalQuestionNumber % 10 === 0) {
+        // KÍCH HOẠT VÒNG THƯỞNG SAU MỖI 3 CÂU HỎI CỦA BẠN 
+        if (naturalQuestionNumber % 3 === 0) {
             setupBonusRound();
         } else {
             proceedToNextQuestionLogic();
@@ -1131,9 +1133,6 @@
         }
     }
 
-    let bonusPool = [];
-    let hasPickedBonus = false;
-
     function setupBonusRound() {
         bonusRoundCount++;
         gameScreen.classList.remove("active-screen");
@@ -1141,11 +1140,12 @@
         
         hasPickedBonus = false;
         document.getElementById("bonus-status").innerText = "";
-        document.getElementById("bonus-instructions").innerText = "🎁 Đang thiết lập các hòm tiếp tế năng lượng...";
+        document.getElementById("bonus-instructions").innerText = "🎁 Đang chuẩn bị các hòm tiếp tế...";
 
+        // Thẻ chứa bổ trợ hoặc +100, +200 điểm như bạn yêu cầu
         const rewardsOptions = [
-            { text: "⭐ Cộng 300 Điểm", action: () => { globalScore += 300; } },
-            { text: "⭐ Cộng 150 Điểm", action: () => { globalScore += 150; } },
+            { text: "⭐ Cộng 100 Điểm", action: () => { globalScore += 100; } },
+            { text: "⭐ Cộng 200 Điểm", action: () => { globalScore += 200; } },
             { text: "🎁 Thêm 1 lượt Chậm Giờ", action: () => { lifelines.noTimer++; } },
             { text: "🎁 Thêm 1 lượt 50:50", action: () => { lifelines.fiftyFifty++; } },
             { text: "🎁 Thêm 1 lượt x2 Điểm", action: () => { lifelines.doubleScore++; } }
@@ -1172,7 +1172,7 @@
                 executeAdvancedPositionShuffle();
             }, 600);
 
-        }, 3500);
+        }, 2500);
     }
 
     function executeAdvancedPositionShuffle() {
@@ -1185,12 +1185,10 @@
         let currentOrder = [0, 1, 2, 3, 4];
         let steps = 0;
         
-        let baseSpeed = 500;
-        if (bonusRoundCount === 2) baseSpeed = 400;
-        if (bonusRoundCount === 3) baseSpeed = 300;
-        if (bonusRoundCount >= 4) baseSpeed = 200;
-
-        let totalShuffles = 8 + (bonusRoundCount * 2); 
+        // Tốc độ chậm rãi vừa phải (700ms mỗi bước hoán đổi)
+        let baseSpeed = 700; 
+        // 10 bước hoán đổi với tốc độ 700ms kéo dài đúng ~7 giây
+        let totalShuffles = 10; 
 
         let shuffleTimer = setInterval(() => {
             let i = Math.floor(Math.random() * 5);
@@ -1215,16 +1213,16 @@
                 setTimeout(() => {
                     slots.forEach((slot) => {
                         slot.classList.remove("disabled");
-                        slot.classList.add("highlight-ready"); 
+                        slot.classList.add("highlight-ready"); // Bài sáng lên báo hiệu sẵn sàng mở
                     });
-                    document.getElementById("bonus-instructions").innerText = "🎯 ĐÃ XÁO XONG! Mời con bấm chọn một hộp quà may mắn!";
+                    document.getElementById("bonus-instructions").innerText = "🎯 XÁO BÀI HOÀN TẤT! Mời con bấm chọn một hộp quà may mắn!";
                 }, 400);
             }
         }, baseSpeed);
     }
 
     function flipCard(index, element) {
-        if (hasPickedBonus || element.classList.contains("disabled")) return;
+        if (hasPickedBonus || element.classList.contains("disabled") || !element.classList.contains("highlight-ready")) return;
         hasPickedBonus = true;
 
         const slots = document.querySelectorAll(".card-slot");
@@ -1259,6 +1257,7 @@
     }
 
     function closeBonusRound() {
+        bonusScreen.remove("active-screen");
         bonusScreen.classList.remove("active-screen");
         gameScreen.classList.add("active-screen");
         proceedToNextQuestionLogic();
