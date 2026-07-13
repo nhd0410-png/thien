@@ -181,6 +181,21 @@
             100% { transform: translate(1px, 2px) rotate(-1deg); }
         }
 
+        .explosion-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explodeOut 0.6s ease-out forwards;
+        }
+
+        @keyframes explodeOut {
+            0% { transform: translate(0,0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        }
+
         .battle-deck {
             display: grid;
             grid-template-columns: 1fr 180px;
@@ -214,6 +229,26 @@
             height: 100%;
             filter: drop-shadow(0 0 8px rgba(0, 255, 240, 0.6));
             transition: opacity 0.1s;
+        }
+
+        .spaceship-container.shooting {
+            animation: recoil 0.1s ease-out;
+        }
+
+        .spaceship-container.exploded {
+            animation: shipBlowUp 0.5s ease-out forwards;
+        }
+
+        @keyframes recoil {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(8px) scale(0.95); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        @keyframes shipBlowUp {
+            0% { transform: scale(1) rotate(0); opacity: 1; filter: hue-rotate(0deg) brightness(3); }
+            50% { transform: scale(1.4) rotate(45deg); opacity: 0.6; filter: hue-rotate(90deg) brightness(5); }
+            100% { transform: scale(0) rotate(180deg); opacity: 0; }
         }
 
         #laser-canvas {
@@ -376,38 +411,32 @@
         .history-item.history-correct { border-left-color: var(--correct-color); }
         .history-item.history-wrong { border-left-color: var(--wrong-color); }
 
+        /* VÒNG THƯỞNG - BẢNG THẺ BÀI SỬA ĐỔI ĐỂ HỖ TRỢ DI CHUYỂN TOẠ ĐỘ THỰC TẾ */
         .cards-board-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            margin-top: 25px;
-            min-height: 340px;
             position: relative;
-        }
-
-        .cards-row {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
             width: 100%;
+            max-width: 500px;
+            height: 380px;
+            margin: 25px auto 0 auto;
         }
 
         .card-slot {
+            position: absolute;
             width: 125px;
             height: 165px;
             perspective: 1000px;
             cursor: pointer;
-            position: relative;
-            transition: all 0.4s ease;
             z-index: 2;
+            /* Thêm hiệu ứng transition mượt mà cho thuộc tính top và left khi swap */
+            transition: top 0.4s ease-in-out, left 0.4s ease-in-out, transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .card-inner {
             width: 100%; height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.6s;
+            transform: rotateY(180deg);
         }
 
         .card-slot.face-down .card-inner { transform: rotateY(0deg); }
@@ -454,31 +483,22 @@
         }
         
         .card-slot.disabled {
-            cursor: not-allowed !important;
+            cursor: not-allowed;
+            pointer-events: none;
         }
         
         .card-slot.highlight-ready {
-            box-shadow: 0 0 20px var(--border-neon);
+            box-shadow: 0 0 15px var(--border-neon);
             border-radius: 8px;
+            pointer-events: auto;
             cursor: pointer;
-        }
-
-        @keyframes shuffleVisual {
-            0% { transform: translateY(0) scale(1); }
-            25% { transform: translateY(-15px) translateX(10px) scale(0.95); }
-            50% { transform: translateY(15px) translateX(-10px) scale(1.05); }
-            70% { transform: translateY(-5px) scale(0.98); }
-            100% { transform: translateY(0) scale(1); }
-        }
-
-        .card-slot.shuffle-anim {
-            animation: shuffleVisual 0.7s ease-in-out infinite;
         }
 
         @media (max-width: 600px) {
             .options-grid { grid-template-columns: 1fr; }
             .battle-deck { grid-template-columns: 1fr; }
-            .card-slot { width: 90px; height: 130px; }
+            .cards-board-container { height: 300px; max-width: 360px;}
+            .card-slot { width: 95px; height: 130px; }
         }
     </style>
 </head>
@@ -497,7 +517,7 @@
             • Đề thi gồm <b>110 câu hỏi</b> được tuyển chọn kỹ lưỡng, chia thành 2 phần rõ rệt:<br>
             • <b>Câu 1 - 50 (Ngữ pháp cơ bản)</b>: Tập trung hoàn toàn vào 3 thì quan trọng: <i>Hiện tại đơn, Hiện tại tiếp diễn, Hiện tại hoàn thành</i>. Mỗi câu đều đi kèm các từ nhận biết đặc trưng rõ ràng giúp học sinh dễ nhận biết.<br>
             • <b>Câu 51 - 110 (Từ vựng lớp 9)</b>: 60 câu từ vựng trích xuất từ SGK Tiếng Anh 9 Global Success mới nhất, gồm 30 câu trắc nghiệm xác nhận nghĩa và 30 câu điền từ viết tay rèn luyện trí nhớ.<br>
-            • 🎁 <b>Vòng Quà Tặng Đặc Biệt</b>: Xuất hiện <b>sau mỗi 3 câu hỏi</b>. Thiết lập cấu trúc chuẩn 5 thẻ bài mang bổ trợ hoặc điểm số thưởng lớn. Lá bài sẽ <b>hiển thị công khai, lật úp rồi tiến hành xáo trộn chậm rãi trong 7 giây</b>. Mọi lượt click chuột sẽ bị <b>khóa hoàn toàn</b> cho đến khi hoàn tất xáo bài!
+            • 🎁 <b>Vòng Quà Tặng Đặc Biệt</b>: Xuất hiện <b>sau mỗi 3 câu hỏi</b>. Thiết lập cấu trúc chuẩn 3 thẻ hàng trên, 2 thẻ hàng dưới mang bổ trợ hoặc +100, +200 điểm. Lá bài sẽ <b>xáo đổi vị trí hoàn toàn cho nhau một cách trực quan trong đúng 7 giây</b>. Đặc biệt, hệ thống sẽ <b>khóa hoàn toàn tính năng nhấp chuột</b> cho đến khi bài sáng lên báo hiệu hoàn thành xáo bài mới cho chọn!
         </div>
         <div style="text-align: center;">
             <button class="start-game-btn" onclick="startGame()">Bắt Đầu Vượt Ải Ngay</button>
@@ -560,15 +580,11 @@
         <p id="bonus-instructions" style="font-size: 1.2rem; color: #00fff0; font-weight: bold; text-align: center;">Chuẩn bị...</p>
 
         <div class="cards-board-container" id="cards-board-element">
-            <div class="cards-row" id="row-top">
-                <div id="card-0" class="card-slot face-up" onclick="flipCard(0, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-0">?</div></div></div>
-                <div id="card-1" class="card-slot face-up" onclick="flipCard(1, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-1">?</div></div></div>
-                <div id="card-2" class="card-slot face-up" onclick="flipCard(2, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-2">?</div></div></div>
-            </div>
-            <div class="cards-row" id="row-bottom">
-                <div id="card-3" class="card-slot face-up" onclick="flipCard(3, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-3">?</div></div></div>
-                <div id="card-4" class="card-slot face-up" onclick="flipCard(4, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-4">?</div></div></div>
-            </div>
+            <div id="card-0" class="card-slot face-down" onclick="flipCard(0, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-0">?</div></div></div>
+            <div id="card-1" class="card-slot face-down" onclick="flipCard(1, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-1">?</div></div></div>
+            <div id="card-2" class="card-slot face-down" onclick="flipCard(2, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-2">?</div></div></div>
+            <div id="card-3" class="card-slot face-down" onclick="flipCard(3, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-3">?</div></div></div>
+            <div id="card-4" class="card-slot face-down" onclick="flipCard(4, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-4">?</div></div></div>
         </div>
 
         <div id="bonus-status" style="height: 30px; font-weight: bold; color: #00ff87; font-size: 1.2rem; margin-top: 15px; text-align: center;"></div>
@@ -646,370 +662,726 @@
         { type: "mcq", q: "They usually _________ a family reunion during the traditional Lunar New Year.", a: "have", b: "has", c: "are having", d: "have had", correct: "A", exp: "Dấu hiệu tần suất 'usually' chia Hiện tại đơn với danh từ số nhiều." },
         { type: "mcq", q: "At the moment, the surgeon _________ a very critical operation.", a: "perform", b: "performs", c: "is performing", d: "has performed", correct: "C", exp: "Dấu hiệu 'At the moment' yêu cầu chia động từ ở thì Hiện tại tiếp diễn." },
         { type: "mcq", q: "He _________ lived in this metropolis for a decade, so he knows it well.", a: "is", b: "does", c: "has", d: "have", correct: "C", exp: "Có cụm từ 'for a decade' và động từ V3 'lived' nên dùng trợ động từ 'has' cho ngôi số ít." },
+
         // --- 60 CÂU TỪ VỰNG LỚP 9 (GLOBAL SUCCESS) ---
-        { type: "mcq", q: "Từ vựng 'Attractive' mang ý nghĩa nào sau đây?", a: "xấu xí, thô kệch", b: "thu hút, lôi cuốn, quyến rũ", c: "nhạt nhẽo, đơn điệu", d: "giàu có, thịnh vượng", correct: "B", exp: "Attractive nghĩa là thu hút, lôi cuốn, quyến rũ người khác bởi ngoại hình hoặc tính chất." },
-        { type: "mcq", q: "Từ vựng 'Handsome' mang ý nghĩa nào sau đây?", a: "thấp bé, lùn tịt", b: "mập mạp, béo phì", c: "đẹp trai, lịch lãm", d: "gầy gò, ốm yếu", correct: "C", exp: "Handsome dùng để tả vẻ ngoài đẹp trai, lịch lãm ở nam giới." },
-        { type: "mcq", q: "Từ vựng 'Stunning' mang ý nghĩa nào sau đây?", a: "lộng lẫy, cực kỳ xinh đẹp", b: "bình thường, đơn giản", c: "luộm thuộm, bẩn thỉu", d: "buồn bã, ủ rũ", correct: "A", exp: "Stunning nghĩa là vô cùng lộng lẫy, cực kỳ xinh đẹp gây ấn tượng mạnh." },
-        { type: "mcq", q: "Từ vựng 'Elegant' mang ý nghĩa nào sau đây?", a: "thô lỗ, cục cằn", b: "thanh lịch, tao nhã", c: "nhanh nhẹn, lanh lợi", d: "chậm chạp, lười biếng", correct: "B", exp: "Elegant là phong thái thanh lịch, tao nhã trong cách ăn mặc hoặc cư xử." }
+        { type: "mcq", q: "Từ vựng 'Attractive' mang ý nghĩa nào sau đây?", a: "xấu xí, thô kệch", b: "thu hút, lôi cuốn, quyến rũ", c: "nhạt nhẽo, đơn điệu", d: "giàu có, thịnh vượng", correct: "B", exp: "Attractive nghĩa là thu hút, lôi cuốn." },
+        { type: "mcq", q: "Từ vựng 'Handsome' mang ý nghĩa nào sau đây?", a: "thấp bé, lùn tịt", b: "mập mạp, béo phì", c: "đẹp trai, lịch lãm", d: "gầy gò, ốm yếu", correct: "C", exp: "Handsome dùng để tả vẻ ngoài đẹp trai ở nam giới." },
+        { type: "mcq", q: "Từ vựng 'Stunning' mang ý nghĩa nào sau đây?", a: "lộng lẫy, cực kỳ xinh đẹp", b: "bình thường, đơn giản", c: "luộm thuộm, bẩn thỉu", d: "buồn bã, ủ rũ", correct: "A", exp: "Stunning nghĩa là vô cùng lộng lẫy, cực kỳ xinh đẹp." },
+        { type: "mcq", q: "Từ vựng 'Elegant' mang ý nghĩa nào sau đây?", a: "thô lỗ, cục cằn", b: "thanh lịch, tao nhã", c: "nhanh nhẹn, lanh lợi", d: "chậm chạp, lười biếng", correct: "B", exp: "Elegant là phong thái thanh lịch, tao nhã." },
+        { type: "mcq", q: "Từ vựng 'Plain' mang ý nghĩa nào sau đây?", a: "sặc sỡ, lòe loẹt", b: "sang trọng, quý phái", c: "đơn giản, chân phương, không nổi bật", d: "hung dữ, độc ác", correct: "C", exp: "Plain mang nghĩa mộc mạc, đơn giản, không cầu kỳ tôn sắc." },
+        { type: "mcq", q: "Từ vựng 'Gorgeous' mang ý nghĩa nào sau đây?", a: "tuyệt đẹp, tuyệt vời, tráng lệ", b: "tối tăm, ẩm thấp", c: "hôi hám, khó ngửi", d: "nguy hiểm, độc hại", correct: "A", exp: "Gorgeous chỉ vẻ đẹp rực rỡ, lộng lẫy, đáng kinh ngạc." },
+        { type: "mcq", q: "Từ vựng 'Ugly' mang ý nghĩa nào sau đây?", a: "dễ thương, đáng yêu", b: "xấu xí, không đẹp mắt", c: "cao ráo, thanh tú", d: "thông minh, uyên bác", correct: "B", exp: "Ugly là từ trái nghĩa hoàn toàn với các tính từ miêu tả vẻ đẹp." },
+        { type: "mcq", q: "Từ vựng 'Feature' mang ý nghĩa nào sau đây?", a: "nét đặc trưng, điểm đặc biệt", b: "lỗi lầm, khuyết điểm", c: "sự trừng phạt", d: "quá khứ, lịch sử", correct: "A", exp: "Feature là nét đặc sắc, tính năng hoặc điểm nổi bật trên khuôn mặt/sản phẩm." },
+        { type: "mcq", q: "Từ vựng 'Appearance' mang ý nghĩa nào sau đây?", a: "tính cách bên trong", b: "diện mạo, vẻ bề ngoài", c: "tài sản, của cải", d: "sức khỏe, thể lực", correct: "B", exp: "Appearance là diện mạo, dáng vẻ bên ngoài có thể nhìn thấy được." },
+        { type: "mcq", q: "Từ vựng 'Dress up' mang ý nghĩa nào sau đây?", a: "mặc quần áo bình thường", b: "ăn diện, mặc quần áo trang trọng/lộng lẫy", c: "cởi quần áo ra", d: "giặt giũ quần áo", correct: "B", exp: "Dress up nghĩa là chải chuốt, diện quần áo đẹp đi dự tiệc hoặc sự kiện." },
+        { type: "mcq", q: "Từ vựng 'Pass down' mang ý nghĩa nào sau đây?", a: "vứt bỏ đi", b: "mua lại bằng tiền", c: "truyền lại (cho thế hệ sau)", d: "giấu kín không cho ai biết", correct: "C", exp: "Pass down là cụm động từ chỉ sự bàn giao, lưu truyền truyền thống/kinh nghiệm." },
+        { type: "mcq", q: "Từ vựng 'Live on' mang ý nghĩa nào sau đây?", a: "sống dựa vào, sống bằng nguồn thu nhập/thức ăn nào đó", b: "chết đi vì bệnh tật", c: "di cư sang nước ngoài", d: "ghét bỏ cuộc sống", correct: "A", exp: "Live on sth nghĩa là duy trì cuộc sống dựa vào số tiền hoặc thực phẩm cụ thể." },
+        { type: "mcq", q: "Từ vựng 'Turn down' mang ý nghĩa nào sau đây?", a: "chấp nhận ngay lập tức", b: "từ chối (lời mời, đề nghị)", c: "tăng âm lượng lên cao", d: "khám phá vùng đất mới", correct: "B", exp: "Turn down bằng nghĩa với 'reject' hoặc 'refuse' (từ chối)." },
+        { type: "mcq", q: "Từ vựng 'Close down' mang ý nghĩa nào sau đây?", a: "mở thêm chi nhánh mới", b: "phát triển mạnh mẽ", c: "đóng cửa hoàn toàn, phá sản (doanh nghiệp)", d: "sửa chữa tòa nhà", correct: "C", exp: "Close down chỉ một cửa hàng hoặc doanh nghiệp ngừng hoạt động vĩnh viễn." },
+        { type: "mcq", q: "Từ vựng 'Come back' mang ý nghĩa nào sau đây?", a: "đi luôn không về", b: "quay trở lại", c: "biến mất hoàn toàn", d: "chạy trốn cảnh sát", correct: "B", exp: "Come back mang ý nghĩa trở về, quay lại địa điểm cũ." },
+        { type: "mcq", q: "Từ vựng 'Artisan' có nghĩa là gì?", a: "Nghệ nhân, thợ thủ công lành nghề", b: "Bác sĩ phẫu thuật", c: "Lập trình viên", d: "Phi công vũ trụ", correct: "A", exp: "Artisan là người làm nghề thủ công có tay nghề cao." },
+        { type: "mcq", q: "Từ vựng 'Handicraft' có nghĩa là gì?", a: "Sản phẩm thủ công mỹ nghệ", b: "Máy bay mô hình", c: "Thiết bị điện tử", d: "Thuốc men", correct: "A", exp: "Handicraft là các sản phẩm làm hoàn toàn bằng tay mang tính nghệ thuật." },
+        { type: "mcq", q: "Từ vựng 'Workshop' có nghĩa là gì?", a: "Phân xưởng, xưởng sản xuất thực hành", b: "Khách sạn 5 sao", c: "Rạp chiếu phim", d: "Công viên giải trí", correct: "A", exp: "Workshop là không gian xưởng nơi các nghệ nhân làm việc hoặc dạy nghề." },
+        { type: "mcq", q: "Từ vựng 'Attraction' có nghĩa là gì?", a: "Điểm du lịch thu hút khách", b: "Sự ô nhiễm không khí", c: "Khu ổ chuột", d: "Bãi rác thải", correct: "A", exp: "Attraction (như tourist attraction) là địa điểm danh lam thắng cảnh lôi cuốn du khách." },
+        { type: "mcq", q: "Từ vựng 'Preserve' có nghĩa là gì?", a: "Bảo tồn, giữ gìn", b: "Phá hủy, đập phá", c: "Lãng phí", d: "Bán rẻ", correct: "A", exp: "Preserve nghĩa là bảo vệ cấu trúc, giá trị nguyên vẹn của di sản." },
+        { type: "mcq", q: "Từ vựng 'Authentic' có nghĩa là gì?", a: "Đích thực, chân thật, nguyên bản", b: "Giả mạo, hàng nhái", c: "Độc hại", d: "Hết hạn sử dụng", correct: "A", exp: "Authentic chỉ những đồ vật có nguồn gốc thật, không phải hàng giả." },
+        { type: "mcq", q: "Từ vựng 'Craftsman' có nghĩa là gì?", a: "Thợ thủ công (nam)", b: "Nhạc sĩ", c: "Họa sĩ", d: "Nhà thơ", correct: "A", exp: "Craftsman tương tự artisan, nhấn mạnh vào người thợ nam lành nghề." },
+        { type: "mcq", q: "Từ vựng 'Embroidery' có nghĩa là gì?", a: "Nghệ thuật thêu thùa", b: "Đúc đồng", c: "Đan lát", d: "Làm gốm", correct: "A", exp: "Embroidery là nghệ thuật dùng kim chỉ tạo hình hoa văn trên vải." },
+        { type: "mcq", q: "Từ vựng 'Souvenir' có nghĩa là gì?", a: "Quà lưu niệm", b: "Tiền mặt", c: "Vé máy bay", d: "Hộ chiếu", correct: "A", exp: "Souvenir là vật kỷ niệm mua khi đi du lịch." },
+        { type: "mcq", q: "Từ vựng 'Lacquerware' có nghĩa là gì?", a: "Đồ sơn mài", b: "Đồ thủy tinh", c: "Đồ nhựa", d: "Đồ inox", correct: "A", exp: "Lacquerware là sản phẩm mỹ nghệ truyền thống được phủ nhiều lớp sơn mài bóng." },
+        { type: "mcq", q: "Từ vựng 'Pottery' có nghĩa là gì?", a: "Đồ gốm sứ", b: "Tranh dầu", c: "Đồ da", d: "Vải lụa", correct: "A", exp: "Pottery là các sản phẩm làm từ đất sét nung như bát, bình, lọ." },
+        { type: "mcq", q: "Từ vựng 'Set up' trong ngữ cảnh doanh nghiệp nghĩa là gì?", a: "Thành lập, khởi nghiệp", b: "Giải thể", c: "Mua lại", d: "Tạm dừng", correct: "A", exp: "Set up a business nghĩa là thiết lập, thành lập cơ sở kinh doanh mới." },
+        { type: "mcq", q: "Từ vựng 'Take over' nghĩa là gì?", a: "Tiếp quản, kế thừa, giành quyền kiểm soát", b: "Bỏ rơi", c: "Từ chối", d: "Trốn chạy", correct: "A", exp: "Take over chỉ việc tiếp nhận lại vị trí hoặc công ty từ người khác." },
+        { type: "mcq", q: "Từ vựng 'Look forward to' nghĩa là gì?", a: "Mong đợi, trông mong một cách hân hoan", b: "Khinh thường", c: "Quên lãng", d: "Lo sợ", correct: "A", exp: "Look forward to + V-ing diễn tả sự mong chờ điều gì đó với tâm trạng háo hức." },
+        { type: "mcq", q: "Từ vựng 'Face up to' nghĩa là gì?", a: "Đối mặt, chấp nhận một thực tế khó khăn", b: "Trốn tránh", c: "Quay lưng lại", d: "Từ bỏ", correct: "A", exp: "Face up to nghĩa là dũng cảm nhìn nhận và xử lý vấn đề nan giải." },
+
+        // --- 30 CÂU ĐIỀN TỪ VIẾT TAY (CÂU 81 - 110) ---
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Vẻ ngoài lộng lẫy, cực kỳ xinh đẹp bắt đầu bằng chữ S là: s_ _ _ _ _ _ _.", correct: "stunning", exp: "Đáp án đúng là 'stunning' (lộng lẫy)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Tính từ chỉ sự thanh lịch, tao nhã bắt đầu bằng chữ E là: e_ _ _ _ _ _.", correct: "elegant", exp: "Đáp án đúng là 'elegant' (thanh lịch)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Tính từ chỉ vẻ đẹp trai của nam giới bắt đầu bằng chữ H là: h_ _ _ _ _ _ _.", correct: "handsome", exp: "Đáp án đúng là 'handsome' (đẹp trai)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Tính từ chỉ sự thu hút, lôi cuốn bắt đầu bằng chữ A là: a_ _ _ _ _ _ _ _ _.", correct: "attractive", exp: "Đáp án đúng là 'attractive' (thu hút)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Tính từ chỉ sự đơn giản, không nổi bật bắt đầu bằng chữ P là: p_ _ _ _.", correct: "plain", exp: "Đáp án đúng là 'plain' (đơn giản, chân phương)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ có nghĩa là 'ăn diện, mặc đồ đẹp' bắt đầu bằng chữ D là: d_ _ _ _  u_.", correct: "dress up", exp: "Đáp án đúng là 'dress up' (ăn diện)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ sự truyền lại cho thế hệ sau bắt đầu bằng chữ P là: p_ _ _  d_ _ _.", correct: "pass down", exp: "Đáp án đúng là 'pass down' (truyền lại)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ sự từ chối lời mời/đề nghị bắt đầu bằng chữ T là: t_ _ _  d_ _ _.", correct: "turn down", exp: "Đáp án đúng là 'turn down' (từ chối)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ cơ sở kinh doanh đóng cửa hoàn toàn phá sản bắt đầu bằng chữ C là: c_ _ _ _  d_ _ _.", correct: "close down", exp: "Đáp án đúng là 'close down' (đóng cửa hẳn)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ người nghệ nhân, thợ thủ công bắt đầu bằng chữ A là: a_ _ _ __ _.", correct: "artisan", exp: "Đáp án đúng là 'artisan' (nghệ nhân)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ sản phẩm thủ công mỹ nghệ bắt đầu bằng chữ H là: h_ _ _ _ _ _ _ _ _.", correct: "handicraft", exp: "Đáp án đúng là 'handicraft' (đồ thủ công)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ phân xưởng sản xuất hoặc nơi thực hành tay nghề bắt đầu bằng chữ W là: w_ _ __ __ _.", correct: "workshop", exp: "Đáp án đúng là 'workshop' (phân xưởng)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ địa điểm du lịch thu hút khách bắt đầu bằng chữ A là: a_ _ _ _ _ _ _ _ _.", correct: "attraction", exp: "Đáp án đúng là 'attraction' (điểm thu hút)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Động từ mang ý nghĩa bảo tồn, giữ gìn di sản bắt đầu bằng chữ P là: p_ _ _ _ _ _ _.", correct: "preserve", exp: "Đáp án đúng là 'preserve' (bảo tồn)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Tính từ chỉ đồ vật đích thực, chân thật, hàng thật bắt đầu bằng chữ A là: a_ _ _ _ _ _ _ _.", correct: "authentic", exp: "Đáp án đúng là 'authentic' (đích thực/chính hãng)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ món quà lưu niệm mua khi đi lịch bắt đầu bằng chữ S là: s_ _ _ _ __ _.", correct: "souvenir", exp: "Đáp án đúng là 'souvenir' (quà lưu niệm)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ đồ thủ công mỹ nghệ sơn mài bắt đầu bằng chữ L là: l_ _ _ _ _ _ _ _ _ _.", correct: "lacquerware", exp: "Đáp án đúng là 'lacquerware' (đồ sơn mài)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ mặt hàng gốm sứ làm từ đất sét bắt đầu bằng chữ P là: p_ _ _ __ _.", correct: "pottery", exp: "Đáp án đúng là 'pottery' (đồ gốm)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ có nghĩa là thành lập công ty, khởi nghiệp bắt đầu bằng chữ S là: s_ _  u_.", correct: "set up", exp: "Đáp án đúng là 'set up' (thành lập)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ việc tiếp quản công ty hoặc giành quyền kiểm soát bắt đầu bằng chữ T là: t_ _ _  o_ _ _.", correct: "take over", exp: "Đáp án đúng là 'take over' (tiếp quản)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ việc đối mặt, chấp nhận một thực tế nan giải bắt đầu bằng chữ F là: f_ _ _  u_  t_.", correct: "face up to", exp: "Đáp án đúng là 'face up to' (đối mặt với)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Tính từ chỉ vẻ đẹp rực rỡ, lộng lẫy bắt đầu bằng chữ G là: g_ _ _ _ _ _ _.", correct: "gorgeous", exp: "Đáp án đúng là 'gorgeous' (tuyệt đẹp)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Tính từ chỉ sự xấu xí, không đẹp mắt bắt đầu bằng chữ U là: u_ _ _.", correct: "ugly", exp: "Đáp án đúng là 'ugly' (xấu xí)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ nét đặc trưng, điểm đặc sắc bắt đầu bằng chữ F là: f_ _ _ _ _ _.", correct: "feature", exp: "Đáp án đúng là 'feature' (nét đặc trưng)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ diện mạo hoặc vẻ bề ngoài bắt đầu bằng chữ A là: a_ _ _ _ _ _ _ _ _.", correct: "appearance", exp: "Đáp án đúng là 'appearance' (diện mạo)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ việc sống dựa vào nguồn thu nhập/thức ăn bắt đầu bằng chữ L là: l__ _  o_.", correct: "live on", exp: "Đáp án đúng là 'live on' (sống bằng)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ việc quay trở lại bắt đầu bằng chữ C là: c_ _ _  b_ _ _.", correct: "come back", exp: "Đáp án đúng là 'come back' (quay lại)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Nghệ thuật thêu thùa hoa văn trên vải bắt đầu bằng chữ E là: e_ _ _ _ _ _ _ _ _.", correct: "embroidery", exp: "Đáp án đúng là 'embroidery' (nghệ thuật thêu)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Danh từ chỉ người thợ thủ công nam nói chung bắt đầu bằng chữ C là: c_ _ _ _ _ _ _ _.", correct: "craftsman", exp: "Đáp án đúng là 'craftsman' (thợ thủ công)." },
+        { type: "written", q: "Điền từ tiếng Anh còn thiếu: Cụm động từ chỉ việc mong đợi điều gì đó một cách hân hoan bắt đầu bằng chữ L là: l_ _ _  f_ _ _ __ _  t_.", correct: "look forward to", exp: "Đáp án đúng là 'look forward to' (mong đợi)." }
     ];
 
     let currentQuestionIndex = 0;
     let globalScore = 0;
     let userAnswers = [];
-    let timeLimitBase = 50;
-    let activeDoubleScore = false;
-    let activeNoTimer = false; 
-    let lifelines = { fiftyFifty: 1, doubleScore: 1, noTimer: 1 };
+    
     let timerInterval = null;
-    let timeLeft = 0;
-    let isAnswered = false;
-    let isShuffling = false;
-    let poolRewards = [];
+    let timeRemaining = 50;
+    let timeLimitBase = 50;
+    let activeNoTimer = false;
+    let activeDoubleScore = false;
+    let lifelines = { fiftyFifty: 1, doubleScore: 1, noTimer: 1 };
+    let bonusRoundCount = 0;
 
-    function switchScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.getElementById(screenId).classList.add('active-screen');
+    // Quản lý toạ độ gốc của thẻ bài phục vụ thuật toán swap vị trí
+    let cardSlotsData = [];
+    let rewardsPool = [];
+    let bonusSelectionDone = false;
+    let cardsBoardContainer = document.getElementById("cards-board-element");
+
+    // Khởi tạo Canvas hiệu ứng Laser
+    const canvas = document.getElementById("laser-canvas");
+    const ctx = canvas.getContext("2d");
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function showScreen(screenId) {
+        document.querySelectorAll(".screen").forEach(s => s.classList.remove("active-screen"));
+        document.getElementById(screenId).classList.add("active-screen");
     }
 
     function startGame() {
-        restartGame();
-        switchScreen('game-screen');
-        showQuestion();
+        currentQuestionIndex = 0;
+        globalScore = 0;
+        userAnswers = [];
+        timeLimitBase = 50;
+        bonusRoundCount = 0;
+        activeDoubleScore = false;
+        activeNoTimer = false;
+
+        lifelines = { fiftyFifty: 1, doubleScore: 1, noTimer: 1 };
+        updateLifelinesUI();
+
+        showScreen("game-screen");
+        loadQuestion();
     }
 
-    function showQuestion() {
-        if (currentQuestionIndex >= quizData.length) {
-            endGame();
-            return;
-        }
+    function updateLifelinesUI() {
+        document.getElementById("count-5050").textContent = lifelines.fiftyFifty;
+        document.getElementById("ll-5050").disabled = (lifelines.fiftyFifty <= 0);
+        document.getElementById("count-double").textContent = lifelines.doubleScore;
+        document.getElementById("ll-double").disabled = (lifelines.doubleScore <= 0);
+        document.getElementById("count-notimer").textContent = lifelines.noTimer;
+        document.getElementById("ll-notimer").disabled = (lifelines.noTimer <= 0);
+    }
 
-        isAnswered = false;
-        document.getElementById('next-btn').style.display = 'none';
-        document.getElementById('status-message').textContent = '';
+    function loadQuestion() {
+        clearInterval(timerInterval);
+        document.body.classList.remove("panic-mode");
         
-        let itemData = quizData[currentQuestionIndex];
-        document.getElementById('current-q-num').textContent = currentQuestionIndex + 1;
-        document.getElementById('question-text').textContent = itemData.q;
-        
-        let answersZone = document.getElementById('answers-zone');
-        answersZone.innerHTML = '';
+        let statusMsg = document.getElementById("status-message");
+        statusMsg.textContent = "";
+        statusMsg.style.color = "var(--accent-color)";
+        document.getElementById("next-btn").style.display = "none";
 
-        if (itemData.type === "mcq") {
-            let grid = document.createElement('div');
-            grid.className = 'options-grid';
-            ['A', 'B', 'C', 'D'].forEach(opt => {
-                let key = opt.toLowerCase();
-                if (itemData[key]) {
-                    let btn = document.createElement('button');
-                    btn.className = 'option-btn';
-                    btn.innerHTML = `<span class="option-prefix">${opt}.</span> ${itemData[key]}`;
-                    btn.onclick = () => checkMCQAnswer(opt, btn);
-                    grid.appendChild(btn);
-                }
+        let currentQ = quizData[currentQuestionIndex];
+        document.getElementById("current-q-num").textContent = currentQuestionIndex + 1;
+        document.getElementById("score-display").textContent = globalScore;
+
+        let qTextElement = document.getElementById("question-text");
+        qTextElement.textContent = currentQ.q;
+
+        let answersZone = document.getElementById("answers-zone");
+        answersZone.innerHTML = "";
+
+        // Reset tàu vũ trụ về trạng thái bình thường
+        let ship = document.getElementById("player-ship");
+        ship.className = "spaceship-container";
+        ship.style.transform = "translateX(0) translateY(0)";
+
+        if (currentQ.type === "mcq") {
+            let grid = document.createElement("div");
+            grid.className = "options-grid";
+            
+            const options = [
+                { key: "A", text: currentQ.a },
+                { key: "B", text: currentQ.b },
+                { key: "C", text: currentQ.c },
+                { key: "D", text: currentQ.d }
+            ];
+
+            options.forEach(opt => {
+                let btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.setAttribute("data-option", opt.key);
+                btn.innerHTML = `<span class="option-prefix">${opt.key}.</span> ${opt.text}`;
+                btn.onclick = () => checkMcqAnswer(opt.key, btn);
+                grid.appendChild(btn);
             });
             answersZone.appendChild(grid);
+            document.getElementById("ll-5050").disabled = (lifelines.fiftyFifty <= 0);
         } else {
-            let writeDiv = document.createElement('div');
-            writeDiv.className = 'written-container';
-            writeDiv.innerHTML = `
-                <input type="text" id="written-answer-input" class="written-input" placeholder="Nhập từ tiếng Anh chính xác..." autocomplete="off">
-                <br><br>
-                <button class="control-btn blue" id="submit-written-btn" onclick="checkWrittenAnswer()">Nộp câu trả lời</button>
+            // Loại câu hỏi tự luận điền từ viết tay
+            document.getElementById("ll-5050").disabled = true; 
+            let writeContainer = document.createElement("div");
+            writeContainer.className = "written-container";
+            writeContainer.innerHTML = `
+                <input type="text" id="write-input-field" class="written-input" placeholder="Nhập đáp án của con tại đây..." autocomplete="off"><br>
+                <button class="control-btn blue" style="margin-top: 15px;" id="submit-written-btn" onclick="checkWrittenAnswer()">Nộp câu trả lời</button>
             `;
-            answersZone.appendChild(writeDiv);
+            answersZone.appendChild(writeContainer);
+
+            // Bắt sự kiện phím Enter
+            document.getElementById("write-input-field").addEventListener("keyup", function(e) {
+                if (e.key === "Enter") {
+                    checkWrittenAnswer();
+                }
+            });
         }
 
-        updateLifelinesUI();
-        startTimer();
-    }
-
-    function startTimer() {
-        clearInterval(timerInterval);
+        // Thiết lập đồng hồ đếm ngược thời gian
         if (activeNoTimer) {
-            document.getElementById('countdown-text').textContent = "Vô tận";
-            document.getElementById('timer-bar').style.width = '100%';
-            return;
+            timeRemaining = 999;
+            document.getElementById("countdown-text").textContent = "Vô hạn";
+            document.getElementById("countdown-text").className = "";
+            document.getElementById("timer-bar").style.width = "100%";
+            document.getElementById("timer-bar").style.background = "#00fff0";
+        } else {
+            timeRemaining = timeLimitBase;
+            updateTimerBar();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerBar();
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
         }
-
-        timeLeft = timeLimitBase;
-        let bar = document.getElementById('timer-bar');
-        let txt = document.getElementById('countdown-text');
-        
-        txt.className = '';
-        txt.textContent = timeLeft + "s";
-        bar.style.width = '100%';
-
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            txt.textContent = timeLeft + "s";
-            bar.style.width = (timeLeft / timeLimitBase * 100) + '%';
-
-            if (timeLeft <= 15 && timeLeft > 5) txt.className = 'warning';
-            if (timeLeft <= 5) txt.className = 'panic';
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                handleTimeout();
-            }
-        }, 1000);
     }
 
-    function handleTimeout() {
-        if (isAnswered) return;
-        isAnswered = true;
+    function updateTimerBar() {
+        if (activeNoTimer) return;
+        let percent = (timeRemaining / timeLimitBase) * 100;
+        let bar = document.getElementById("timer-bar");
+        let txt = document.getElementById("countdown-text");
+        
+        bar.style.width = percent + "%";
+        txt.textContent = timeRemaining + "s";
+
+        if (timeRemaining > 20) {
+            bar.style.background = "linear-gradient(to right, #00ff87, #00fff0)";
+            txt.className = "";
+            document.body.classList.remove("panic-mode");
+        } else if (timeRemaining > 8) {
+            bar.style.background = "#ffaa00";
+            txt.className = "warning";
+            document.body.classList.remove("panic-mode");
+        } else {
+            bar.style.background = "#ff4b5c";
+            txt.className = "panic";
+            document.body.classList.add("panic-mode");
+        }
+    }
+
+    function disableAllInputs() {
         clearInterval(timerInterval);
+        document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+        let inputField = document.getElementById("write-input-field");
+        if (inputField) inputField.disabled = true;
+        let submitBtn = document.getElementById("submit-written-btn");
+        if (submitBtn) submitBtn.disabled = true;
         
-        let itemData = quizData[currentQuestionIndex];
-        userAnswers.push({ qIndex: currentQuestionIndex, userChoice: "Hết giờ", isCorrect: false });
-        
-        document.getElementById('status-message').innerHTML = `<span style="color:var(--wrong-color);">Hết thời gian! Đáp án đúng là: ${itemData.correct}</span>`;
+        // Vô hiệu hóa lifelines tạm thời trong lúc xem kết quả câu hỏi
+        document.getElementById("ll-5050").disabled = true;
+        document.getElementById("ll-double").disabled = true;
+        document.getElementById("ll-notimer").disabled = true;
+    }
+
+    function checkMcqAnswer(choice, btnElement) {
         disableAllInputs();
-        document.getElementById('next-btn').style.display = 'block';
-    }
-
-    function checkMCQAnswer(choice, btn) {
-        if (isAnswered) return;
-        isAnswered = true;
-        clearInterval(timerInterval);
-
-        let itemData = quizData[currentQuestionIndex];
-        let isCorrect = (choice === itemData.correct);
+        let currentQ = quizData[currentQuestionIndex];
+        let isCorrect = (choice === currentQ.correct);
         
         userAnswers.push({ qIndex: currentQuestionIndex, userChoice: choice, isCorrect: isCorrect });
 
         if (isCorrect) {
-            btn.classList.add('correct');
-            let baseReward = 100;
-            if (activeDoubleScore) {
-                baseReward *= 2;
-                activeDoubleScore = false;
-            }
-            globalScore += baseReward;
-            document.getElementById('score-display').textContent = globalScore;
-            document.getElementById('status-message').innerHTML = '<span style="color:var(--correct-color);">Chính xác! Bắn hạ mục tiêu thành công!</span>';
+            btnElement.classList.add("correct");
+            triggerLaserEffect(btnElement, true);
+            let gained = activeDoubleScore ? 200 : 100;
+            globalScore += gained;
+            document.getElementById("score-display").textContent = globalScore;
+            document.getElementById("status-message").textContent = `Chính xác! Con được +${gained} điểm.`;
+            document.getElementById("status-message").style.color = "var(--correct-color)";
         } else {
-            btn.classList.add('wrong');
-            document.getElementById('status-message').innerHTML = `<span style="color:var(--wrong-color);">Sai rồi! Đáp án đúng là: ${itemData.correct}</span>`;
-            highlightCorrectMCQ(itemData.correct);
+            btnElement.classList.add("wrong");
+            triggerLaserEffect(btnElement, false);
+            // Tìm nút có đáp án đúng để làm nổi bật lên
+            document.querySelectorAll(".option-btn").forEach(b => {
+                if (b.getAttribute("data-option") === currentQ.correct) {
+                    b.classList.add("correct");
+                }
+            });
+            document.getElementById("status-message").textContent = `Chưa chính xác! Tàu vũ trụ đã bị tấn công.`;
+            document.getElementById("status-message").style.color = "var(--wrong-color)";
         }
 
-        disableAllInputs();
-        document.getElementById('next-btn').style.display = 'block';
+        activeDoubleScore = false; 
+        document.getElementById("next-btn").style.display = "block";
     }
 
     function checkWrittenAnswer() {
-        if (isAnswered) return;
-        let inputEl = document.getElementById('written-answer-input');
-        if (!inputEl) return;
-        let val = inputEl.value.trim().toLowerCase();
-        if (val === "") return;
-
-        isAnswered = true;
-        clearInterval(timerInterval);
-
-        let itemData = quizData[currentQuestionIndex];
-        let correctAns = itemData.correct.trim().toLowerCase();
-        let isCorrect = (val === correctAns);
-
-        userAnswers.push({ qIndex: currentQuestionIndex, userChoice: inputEl.value, isCorrect: isCorrect });
-
-        if (isCorrect) {
-            let baseReward = 150;
-            if (activeDoubleScore) {
-                baseReward *= 2;
-                activeDoubleScore = false;
-            }
-            globalScore += baseReward;
-            document.getElementById('score-display').textContent = globalScore;
-            document.getElementById('status-message').innerHTML = '<span style="color:var(--correct-color);">Tuyệt vời! Bạn đã điền từ chính xác!</span>';
-        } else {
-            document.getElementById('status-message').innerHTML = `<span style="color:var(--wrong-color);">Chưa đúng! Đáp án đúng: ${itemData.correct}</span>`;
-        }
+        let inputField = document.getElementById("write-input-field");
+        if (!inputField) return;
+        let userText = inputField.value.trim().toLowerCase();
+        if (userText === "") return;
 
         disableAllInputs();
-        document.getElementById('next-btn').style.display = 'block';
-    }
+        let currentQ = quizData[currentQuestionIndex];
+        let isCorrect = (userText === currentQ.correct.toLowerCase());
 
-    function highlightCorrectMCQ(correctLetter) {
-        let btns = document.querySelectorAll('.option-btn');
-        btns.forEach(b => {
-            if (b.textContent.trim().startsWith(correctLetter + ".")) {
-                b.classList.add('correct');
-            }
-        });
-    }
+        userAnswers.push({ qIndex: currentQuestionIndex, userChoice: inputField.value.trim(), isCorrect: isCorrect });
 
-    function disableAllInputs() {
-        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-        let inp = document.getElementById('written-answer-input');
-        if (inp) inp.disabled = true;
-        let subBtn = document.getElementById('submit-written-btn');
-        if (subBtn) subBtn.disabled = true;
-    }
-
-    function nextQuestion() {
-        currentQuestionIndex++;
-        
-        if (currentQuestionIndex > 0 && currentQuestionIndex % 3 === 0) {
-            startBonusRound();
+        if (isCorrect) {
+            inputField.style.borderColor = "var(--correct-color)";
+            inputField.style.boxShadow = "0 0 15px var(--correct-color)";
+            let gained = activeDoubleScore ? 200 : 100;
+            globalScore += gained;
+            document.getElementById("score-display").textContent = globalScore;
+            document.getElementById("status-message").textContent = `Chính xác! Con điền từ rất giỏi (+${gained} điểm).`;
+            document.getElementById("status-message").style.color = "var(--correct-color)";
         } else {
-            showQuestion();
+            inputField.style.borderColor = "var(--wrong-color)";
+            inputField.style.boxShadow = "0 0 15px var(--wrong-color)";
+            document.getElementById("status-message").textContent = `Chưa đúng! Đáp án chính xác là: ${currentQ.correct}`;
+            document.getElementById("status-message").style.color = "var(--wrong-color)";
+            let ship = document.getElementById("player-ship");
+            ship.classList.add("exploded");
         }
+
+        activeDoubleScore = false;
+        document.getElementById("next-btn").style.display = "block";
     }
 
-    function startBonusRound() {
-        switchScreen('bonus-screen');
-        isShuffling = true;
+    function handleTimeOut() {
+        disableAllInputs();
+        let currentQ = quizData[currentQuestionIndex];
+        userAnswers.push({ qIndex: currentQuestionIndex, userChoice: "Hết giờ", isCorrect: false });
         
-        let inst = document.getElementById('bonus-instructions');
-        let status = document.getElementById('bonus-status');
-        status.textContent = "";
-        inst.textContent = "🎁 Hãy ghi nhớ các phần quà ẩn giấu dưới đây!";
+        document.getElementById("status-message").textContent = "Hết thời gian suy nghĩ rồi!";
+        document.getElementById("status-message").style.color = "var(--wrong-color)";
 
-        let rewardsList = ["+100 Điểm", "+200 Điểm", "Bổ trợ x2 Điểm", "Bổ trợ Chậm Giờ", "+50 Điểm"];
-        poolRewards = [...rewardsList].sort(() => Math.random() - 0.5);
-
-        let slots = document.querySelectorAll('.card-slot');
-        slots.forEach((s, idx) => {
-            s.className = "card-slot face-up disabled"; 
-            let backEl = document.getElementById('cb-' + idx);
-            backEl.textContent = poolRewards[idx];
-        });
-
-        setTimeout(() => {
-            inst.textContent = "⚡ Các thẻ bài đang úp xuống và tự động xáo trộn... Đợi trong 7 giây!";
-            slots.forEach(s => {
-                s.classList.remove('face-up');
-                s.classList.add('face-down', 'shuffle-anim');
+        if (currentQ.type === "mcq") {
+            document.querySelectorAll(".option-btn").forEach(b => {
+                if (b.getAttribute("data-option") === currentQ.correct) {
+                    b.classList.add("correct");
+                }
             });
-
-            setTimeout(() => {
-                isShuffling = false;
-                inst.textContent = "🌟 Xáo bài hoàn tất! Hãy click chọn chiếc hộp may mắn của con!";
-                slots.forEach(s => {
-                    s.classList.remove('shuffle-anim', 'disabled');
-                    s.classList.add('highlight-ready');
-                });
-            }, 7000);
-
-        }, 2500);
+        }
+        
+        let ship = document.getElementById("player-ship");
+        ship.classList.add("exploded");
+        activeDoubleScore = false;
+        document.getElementById("next-btn").style.display = "block";
     }
 
-    function flipCard(idx, element) {
-        if (isShuffling || element.classList.contains('disabled') || element.classList.contains('face-up')) return;
+    function triggerLaserEffect(targetBtn, isPlayerWinning) {
+        let arena = document.getElementById("arena-box");
+        let ship = document.getElementById("player-ship");
         
-        let slots = document.querySelectorAll('.card-slot');
-        slots.forEach(s => {
-            s.classList.add('disabled');
-            s.classList.remove('highlight-ready');
-        });
+        let arenaRect = arena.getBoundingClientRect();
+        let shipRect = ship.getBoundingClientRect();
+        let btnRect = targetBtn.getBoundingClientRect();
 
-        let rolled = poolRewards[idx];
-        element.classList.remove('face-down');
-        element.classList.add('face-up', 'zoomed-winner');
+        let startX = shipRect.left + shipRect.width/2;
+        let startY = shipRect.top + shipRect.height/2;
+        let endX = btnRect.left + btnRect.width/2;
+        let endY = btnRect.top + btnRect.height/2;
 
-        let status = document.getElementById('bonus-status');
-        status.textContent = `Chúc mừng! Con nhận được: ${rolled}`;
+        ship.classList.add("shooting");
+        setTimeout(() => ship.classList.remove("shooting"), 150);
 
-        if (rolled.includes("+100")) globalScore += 100;
-        if (rolled.includes("+200")) globalScore += 200;
-        if (rolled.includes("+50")) globalScore += 50;
-        if (rolled.includes("x2")) lifelines.doubleScore++;
-        if (rolled.includes("Chậm")) lifelines.noTimer++;
+        let startTime = performance.now();
+        let duration = 300; 
 
-        document.getElementById('score-display').textContent = globalScore;
+        function drawLaser(now) {
+            let progress = (now - startTime) / duration;
+            if (progress > 1) progress = 1;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            
+            if (isPlayerWinning) {
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(startX + (endX - startX) * progress, startY + (endY - startY) * progress);
+                ctx.strokeStyle = "#00fff0";
+                ctx.lineWidth = 5;
+                ctx.shadowColor = "#00fff0";
+            } else {
+                ctx.moveTo(endX, endY);
+                ctx.lineTo(endX + (startX - endX) * progress, endY + (startY - endY) * progress);
+                ctx.strokeStyle = "#ff4b5c";
+                ctx.lineWidth = 5;
+                ctx.shadowColor = "#ff4b5c";
+            }
+            ctx.shadowBlur = 10;
+            ctx.stroke();
 
-        setTimeout(() => {
-            switchScreen('game-screen');
-            showQuestion();
-        }, 3000);
+            if (progress < 1) {
+                requestAnimationFrame(drawLaser);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (!isPlayerWinning) {
+                    ship.classList.add("exploded");
+                } else {
+                    createParticles(btnRect.left + btnRect.width/2, btnRect.top + btnRect.height/2);
+                }
+            }
+        }
+        requestAnimationFrame(drawLaser);
+    }
+
+    function createParticles(x, y) {
+        let parent = document.getElementById("quiz-container");
+        let parentRect = parent.getBoundingClientRect();
+        let relativeX = x - parentRect.left;
+        let relativeY = y - parentRect.top;
+
+        for (let i = 0; i < 15; i++) {
+            let p = document.createElement("div");
+            p.className = "explosion-particle";
+            p.style.left = relativeX + "px";
+            p.style.top = relativeY + "px";
+            
+            let angle = Math.random() * Math.PI * 2;
+            let speed = Math.random() * 60 + 20;
+            p.style.setProperty('--x', Math.cos(angle) * speed + "px");
+            p.style.setProperty('--y', Math.sin(angle) * speed + "px");
+            
+            parent.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
     }
 
     function use5050() {
-        if (lifelines.fiftyFifty <= 0 || isAnswered) return;
-        let itemData = quizData[currentQuestionIndex];
-        if (itemData.type !== "mcq") return;
+        if (lifelines.fiftyFifty <= 0) return;
+        let currentQ = quizData[currentQuestionIndex];
+        if (currentQ.type !== "mcq") return;
 
         lifelines.fiftyFifty--;
         updateLifelinesUI();
 
-        let wrongLetters = ['A', 'B', 'C', 'D'].filter(l => l !== itemData.correct);
-        wrongLetters.sort(() => 0.5 - Math.random());
-        let toRemove = wrongLetters.slice(0, 2);
-
-        let btns = document.querySelectorAll('.option-btn');
-        btns.forEach(b => {
-            let txt = b.textContent.trim();
-            if (txt.startsWith(toRemove[0] + ".") || txt.startsWith(toRemove[1] + ".")) {
-                b.style.visibility = 'hidden';
+        let wrongOptions = [];
+        document.querySelectorAll(".option-btn").forEach(b => {
+            let opt = b.getAttribute("data-option");
+            if (opt !== currentQ.correct) {
+                wrongOptions.push(b);
             }
         });
+
+        // Trộn ngẫu nhiên mảng câu sai và ẩn bớt 2 câu
+        wrongOptions.sort(() => Math.random() - 0.5);
+        wrongOptions[0].style.visibility = "hidden";
+        wrongOptions[1].style.visibility = "hidden";
     }
 
     function useDoubleScore() {
-        if (lifelines.doubleScore <= 0 || isAnswered || activeDoubleScore) return;
+        if (lifelines.doubleScore <= 0) return;
         lifelines.doubleScore--;
         activeDoubleScore = true;
         updateLifelinesUI();
-        document.getElementById('status-message').textContent = "Đã kích hoạt: Nhân đôi điểm số cho câu hỏi này!";
+        document.getElementById("status-message").textContent = "Bổ trợ kích hoạt: Câu này con sẽ được nhân đôi điểm nếu trả lời đúng!";
+        document.getElementById("status-message").style.color = "#ffeb3b";
     }
 
     function useNoTimer() {
-        if (lifelines.noTimer <= 0 || isAnswered || activeNoTimer) return;
+        if (lifelines.noTimer <= 0) return;
         lifelines.noTimer--;
         activeNoTimer = true;
         updateLifelinesUI();
+        
         clearInterval(timerInterval);
-        document.getElementById('countdown-text').textContent = "Vô tận";
-        document.getElementById('timer-bar').style.width = '100%';
-        document.getElementById('status-message').textContent = "Đã kích hoạt: Đóng băng thời gian câu này!";
+        document.getElementById("countdown-text").textContent = "Vô hạn";
+        document.getElementById("countdown-text").className = "";
+        document.getElementById("timer-bar").style.width = "100%";
+        document.getElementById("timer-bar").style.background = "#00fff0";
+        document.body.classList.remove("panic-mode");
     }
 
-    function updateLifelinesUI() {
-        document.getElementById('count-5050').textContent = lifelines.fiftyFifty;
-        document.getElementById('count-double').textContent = lifelines.doubleScore;
-        document.getElementById('count-notimer').textContent = lifelines.noTimer;
+    function nextQuestion() {
+        activeNoTimer = false;
+        currentQuestionIndex++;
+        
+        if (currentQuestionIndex >= quizData.length) {
+            endGame();
+        } else if (currentQuestionIndex > 0 && currentQuestionIndex % 3 === 0) {
+            startBonusRound();
+        } else {
+            loadQuestion();
+        }
+    }
 
-        let itemData = quizData[currentQuestionIndex];
-        document.getElementById('ll-5050').disabled = (lifelines.fiftyFifty <= 0 || isAnswered || !itemData || itemData.type !== "mcq");
-        document.getElementById('ll-double').disabled = (lifelines.doubleScore <= 0 || isAnswered || activeDoubleScore);
-        document.getElementById('ll-notimer').disabled = (lifelines.noTimer <= 0 || isAnswered || activeNoTimer);
+    /* VÒNG QUÀ TẶNG BÍ ẨN - THUẬT TOÁN XÁO BÀI THEO TỌA ĐỘ THỰC TẾ CHUẨN XÁC */
+    function startBonusRound() {
+        bonusRoundCount++;
+        bonusSelectionDone = false;
+        showScreen("bonus-screen");
+        
+        document.getElementById("bonus-instructions").textContent = "🎁 HỘP QUÀ BÍ ẨN: Hệ thống đang chuẩn bị thẻ quà tặng...";
+        document.getElementById("bonus-status").textContent = "";
+
+        // Tạo mảng quà tặng ngẫu nhiên (3 trên, 2 dưới)
+        let rewards = ["+100 Điểm", "+200 Điểm", "+1 Bổ trợ 50:50", "+1 Bổ trợ x2 Điểm", "+1 Bổ trợ Chậm Giờ"];
+        rewards.sort(() => Math.random() - 0.5);
+        rewardsPool = [...rewards];
+
+        // Đổ dữ liệu text vào các mặt sau của thẻ bài trước khi lật
+        for (let i = 0; i < 5; i++) {
+            let cardSlot = document.getElementById("card-" + i);
+            let cardBack = document.getElementById("cb-" + i);
+            cardBack.textContent = rewardsPool[i];
+            
+            // Đảm bảo thẻ ở trạng thái lật ngửa lên (face-up) để học sinh ghi nhớ lúc đầu
+            cardSlot.className = "card-slot face-up disabled zoomed-winner";
+            cardSlot.style.top = "";
+            cardSlot.style.left = "";
+        }
+
+        // Bước 1: Khởi tạo toạ độ phân bổ hình học cố định (3 thẻ dòng trên, 2 thẻ dòng dưới)
+        setTimeout(() => {
+            initializeCardCoordinates();
+            
+            document.getElementById("bonus-instructions").textContent = "🚀 Hãy ghi nhớ vị trí các phần quà trong 3 giây!";
+            
+            // Bước 2: Hết 3 giây, lật úp toàn bộ bài xuống và chuẩn bị xáo vị trí
+            setTimeout(() => {
+                document.getElementById("bonus-instructions").textContent = "⚡ Bài đang xáo trộn... Hãy tập trung quan sát kỹ!";
+                for (let i = 0; i < 5; i++) {
+                    let cardSlot = document.getElementById("card-" + i);
+                    cardSlot.classList.remove("face-up", "zoomed-winner");
+                    cardSlot.classList.add("face-down");
+                }
+
+                // Bắt đầu chuỗi xáo bài hoán đổi toạ độ thực tế kéo dài trong 7 giây
+                executeSmartShuffle(7000);
+
+            }, 3000);
+
+        }, 500);
+    }
+
+    // Tính toán bố cục toạ độ cho 5 thẻ bài trên lưới tuyệt đối
+    function initializeCardCoordinates() {
+        cardSlotsData = [];
+        const containerWidth = cardsBoardContainer.clientWidth;
+        
+        // Cấu hình kích thước thẻ dựa trên kích thước màn hình responsive
+        const isMobile = window.innerWidth <= 600;
+        const cardW = isMobile ? 95 : 125;
+        const cardH = isMobile ? 130 : 165;
+        
+        // Hàng trên có 3 thẻ bài
+        const topRowY = 10;
+        const gapTop = (containerWidth - (cardW * 3)) / 4;
+        const topX0 = gapTop;
+        const topX1 = gapTop * 2 + cardW;
+        const topX2 = gapTop * 3 + cardW * 2;
+
+        // Hàng dưới có 2 thẻ bài
+        const bottomRowY = topRowY + cardH + (isMobile ? 20 : 30);
+        const gapBottom = (containerWidth - (cardW * 2)) / 3;
+        const bottomX0 = gapBottom;
+        const bottomX1 = gapBottom * 2 + cardW;
+
+        // Lưu trữ danh sách vị trí gốc cố định
+        const staticPositions = [
+            { top: topRowY, left: topX0 },   // Thẻ 0
+            { top: topRowY, left: topX1 },   // Thẻ 1
+            { top: topRowY, left: topX2 },   // Thẻ 2
+            { top: bottomRowY, left: bottomX0 }, // Thẻ 3
+            { top: bottomRowY, left: bottomX1 }  // Thẻ 4
+        ];
+
+        // Gán toạ độ ban đầu cho từng thẻ và lưu vết vị trí hiện tại của nó
+        for (let i = 0; i < 5; i++) {
+            let cardSlot = document.getElementById("card-" + i);
+            cardSlot.style.top = staticPositions[i].top + "px";
+            cardSlot.style.left = staticPositions[i].left + "px";
+            
+            cardSlotsData.push({
+                elementId: "card-" + i,
+                currentIndex: i, // Đang đứng ở vị trí ô thứ mấy
+                currentTop: staticPositions[i].top,
+                currentLeft: staticPositions[i].left
+            });
+        }
+    }
+
+    // Thuật toán xáo đổi vị trí thực tế của các thẻ bài qua lại
+    function executeSmartShuffle(totalDuration) {
+        let startTime = Date.now();
+        let stepInterval = 650; // Khoảng thời gian giữa mỗi lượt hoán đổi (ms)
+
+        function shuffleStep() {
+            let elapsed = Date.now() - startTime;
+            if (elapsed >= totalDuration) {
+                // Kết thúc quá trình xáo bài sau đúng 7 giây
+                setTimeout(() => {
+                    document.getElementById("bonus-instructions").textContent = "🌟 ĐÃ XÁO XONG! Hãy chọn 1 lá bài may mắn của con.";
+                    // Mở khoá tính năng click và phát sáng đường viền báo hiệu chọn được
+                    for (let i = 0; i < 5; i++) {
+                        let slot = document.getElementById("card-" + i);
+                        slot.classList.remove("disabled");
+                        slot.classList.add("highlight-ready");
+                    }
+                }, 400);
+                return;
+            }
+
+            // Chọn ngẫu nhiên 2 thẻ bất kỳ trong 5 lá để hoán đổi vị trí hình học cho nhau
+            let idxA = Math.floor(Math.random() * 5);
+            let idxB = Math.floor(Math.random() * 5);
+            while (idxA === idxB) {
+                idxB = Math.floor(Math.random() * 5);
+            }
+
+            let slotA = cardSlotsData[idxA];
+            let slotB = cardSlotsData[idxB];
+
+            // Tráo đổi dữ liệu vị trí top/left của 2 thẻ
+            let tempTop = slotA.currentTop;
+            let tempLeft = slotA.currentLeft;
+            let tempIndex = slotA.currentIndex;
+
+            slotA.currentTop = slotB.currentTop;
+            slotA.currentLeft = slotB.currentLeft;
+            slotA.currentIndex = slotB.currentIndex;
+
+            slotB.currentTop = tempTop;
+            slotB.currentLeft = tempLeft;
+            slotB.currentIndex = tempIndex;
+
+            // Cập nhật lên giao diện CSS (Thẻ bài sẽ di chuyển mượt mà đến vị trí mới)
+            let elA = document.getElementById(slotA.elementId);
+            let elB = document.getElementById(slotB.elementId);
+
+            elA.style.top = slotA.currentTop + "px";
+            elA.style.left = slotA.currentLeft + "px";
+
+            elB.style.top = slotB.currentTop + "px";
+            elB.style.left = slotB.currentLeft + "px";
+
+            // Gọi đệ quy lượt hoán đổi tiếp theo
+            setTimeout(shuffleStep, stepInterval);
+        }
+
+        shuffleStep();
+    }
+
+    function flipCard(id, element) {
+        if (bonusSelectionDone) return;
+        bonusSelectionDone = true;
+
+        // Gỡ bỏ trạng thái sáng
+        document.querySelectorAll(".card-slot").forEach(s => {
+            s.classList.remove("highlight-ready");
+            s.classList.add("disabled");
+        });
+
+        // Lật lá bài được chọn
+        element.classList.remove("face-down");
+        element.classList.add("face-up", "zoomed-winner");
+
+        // Đọc phần thưởng tương ứng
+        let rewardText = rewardsPool[id];
+        document.getElementById("bonus-status").textContent = `🎉 Tuyệt vời! Con đã nhận được: ${rewardText}`;
+
+        // Cộng phần thưởng vào hệ thống tương ứng
+        if (rewardText.includes("100 Điểm")) {
+            globalScore += 100;
+        } else if (rewardText.includes("200 Điểm")) {
+            globalScore += 200;
+        } else if (rewardText.includes("50:50")) {
+            lifelines.fiftyFifty++;
+        } else if (rewardText.includes("x2 Điểm")) {
+            lifelines.doubleScore++;
+        } else if (rewardText.includes("Chậm Giờ")) {
+            lifelines.noTimer++;
+        }
+
+        updateLifelinesUI();
+
+        // Lật ngửa tất cả các lá còn lại sau 1.5 giây để học sinh xem kết quả đầy đủ
+        setTimeout(() => {
+            for (let i = 0; i < 5; i++) {
+                let slot = document.getElementById("card-" + i);
+                slot.classList.remove("face-down");
+                slot.classList.add("face-up");
+            }
+
+            // Tạo nút chuyển tiếp sang câu hỏi tiếp theo
+            let nextQuestionBtn = document.createElement("button");
+            nextQuestionBtn.className = "control-btn";
+            nextQuestionBtn.style.marginTop = "20px";
+            nextQuestionBtn.textContent = "Tiếp Tục Cuộc Hành Trình ➜";
+            nextQuestionBtn.onclick = () => {
+                showScreen("game-screen");
+                loadQuestion();
+            };
+            document.getElementById("bonus-status").appendChild(document.createElement("br"));
+            document.getElementById("bonus-status").appendChild(nextQuestionBtn);
+
+        }, 1500);
     }
 
     function endGame() {
         clearInterval(timerInterval);
-        switchScreen('result-screen');
-        document.getElementById('final-score').textContent = globalScore;
+        document.body.classList.remove("panic-mode");
+        showScreen("result-screen");
         
-        let lvl = document.getElementById('reward-level');
-        if (globalScore >= 8000) lvl.textContent = "Hạng: Đại Tướng Vũ Trụ 🌟";
-        else if (globalScore >= 5000) lvl.textContent = "Hạng: Phi Hành Gia Xuất Sắc 🚀";
-        else lvl.textContent = "Hạng: Tân Binh Không Gian 🛸";
+        document.getElementById("final-score").textContent = globalScore;
+        
+        let rewardLevelLabel = document.getElementById("reward-level");
+        if (globalScore >= 9000) {
+            rewardLevelLabel.textContent = "🏆 Xếp hạng: Đại Tướng Vũ Trụ Bất Bại (Xuất sắc)";
+        } else if (globalScore >= 6000) {
+            rewardLevelLabel.textContent = "🚀 Xếp hạng: Phi Công Thượng Cấp Tinh Nhuệ (Giỏi)";
+        } else if (globalScore >= 3000) {
+            rewardLevelLabel.textContent = "✨ Xếp hạng: Chiến Binh Không Gian Tập Sự (Khá)";
+        } else {
+            rewardLevelLabel.textContent = "☄️ Xếp hạng: Học Viên Học Viện Ngân Hà (Cần cố gắng thêm)";
+        }
     }
 
     function showHistoryScreen() {
-        switchScreen('history-screen');
-        let historyList = document.getElementById('history-list');
-        historyList.innerHTML = '';
+        showScreen("history-screen");
+        let historyList = document.getElementById("history-list");
+        historyList.innerHTML = "";
 
-        let wrongs = userAnswers.filter(a => !a.isCorrect);
-        if (wrongs.length === 0) {
-            historyList.innerHTML = '<div style="color:#00ff87; font-size:1.2rem; text-align:center;">Tuyệt vời! Bạn không sai câu nào cả!</div>';
+        let wrongAnswers = userAnswers.filter(ans => !ans.isCorrect);
+
+        if (wrongAnswers.length === 0) {
+            historyList.innerHTML = "<div style='text-align:center; font-size:1.2rem; color:var(--correct-color); font-weight:bold;'>Thật phi thường! Con không làm sai bất kỳ câu hỏi nào!</div>";
             return;
         }
 
-        wrongs.forEach(ans => {
+        wrongAnswers.forEach(ans => {
             let itemData = quizData[ans.qIndex];
-            let itemDiv = document.createElement('div');
+            let itemDiv = document.createElement("div");
             itemDiv.className = "history-item history-wrong";
 
-            let correctText = itemData.correct;
-            if (itemData.type === "mcq") {
-                let key = itemData.correct.toLowerCase();
-                if (itemData[key]) {
-                    correctText = itemData.correct + ": " + itemData[key];
-                }
-            }
+            let correctText = itemData.type === "mcq" ? itemData.correct + ": " + itemData[itemData.correct.toLowerCase()] : itemData.correct;
 
             itemDiv.innerHTML = `
                 <div style="font-weight:bold; color:#fff;">Câu ${ans.qIndex + 1}: ${itemData.q}</div>
@@ -1024,23 +1396,7 @@
     }
 
     function restartGame() {
-        clearInterval(timerInterval);
-        currentQuestionIndex = 0;
-        globalScore = 0;
-        userAnswers = [];
-        timeLimitBase = 50;
-        activeDoubleScore = false;
-        activeNoTimer = false; 
-        isShuffling = false;
-        
-        lifelines = { 
-            fiftyFifty: 1, 
-            doubleScore: 1, 
-            noTimer: 1 
-        };
-        
-        document.getElementById('score-display').textContent = "0";
-        switchScreen('intro-screen');
+        startGame();
     }
 </script>
 </body>
