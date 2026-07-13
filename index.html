@@ -181,21 +181,6 @@
             100% { transform: translate(1px, 2px) rotate(-1deg); }
         }
 
-        .explosion-particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: explodeOut 0.6s ease-out forwards;
-        }
-
-        @keyframes explodeOut {
-            0% { transform: translate(0,0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
-        }
-
         .battle-deck {
             display: grid;
             grid-template-columns: 1fr 180px;
@@ -229,26 +214,6 @@
             height: 100%;
             filter: drop-shadow(0 0 8px rgba(0, 255, 240, 0.6));
             transition: opacity 0.1s;
-        }
-
-        .spaceship-container.shooting {
-            animation: recoil 0.1s ease-out;
-        }
-
-        .spaceship-container.exploded {
-            animation: shipBlowUp 0.5s ease-out forwards;
-        }
-
-        @keyframes recoil {
-            0% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(8px) scale(0.95); }
-            100% { transform: translateY(0) scale(1); }
-        }
-
-        @keyframes shipBlowUp {
-            0% { transform: scale(1) rotate(0); opacity: 1; filter: hue-rotate(0deg) brightness(3); }
-            50% { transform: scale(1.4) rotate(45deg); opacity: 0.6; filter: hue-rotate(90deg) brightness(5); }
-            100% { transform: scale(0) rotate(180deg); opacity: 0; }
         }
 
         #laser-canvas {
@@ -434,7 +399,7 @@
             perspective: 1000px;
             cursor: pointer;
             position: relative;
-            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.4s ease;
             z-index: 2;
         }
 
@@ -442,8 +407,7 @@
             width: 100%; height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.6s;
-            transform: rotateY(180deg);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card-slot.face-down .card-inner { transform: rotateY(0deg); }
@@ -490,15 +454,25 @@
         }
         
         .card-slot.disabled {
-            cursor: not-allowed;
-            pointer-events: none;
+            cursor: not-allowed !important;
         }
         
         .card-slot.highlight-ready {
-            box-shadow: 0 0 15px var(--border-neon);
+            box-shadow: 0 0 20px var(--border-neon);
             border-radius: 8px;
-            pointer-events: auto;
             cursor: pointer;
+        }
+
+        @keyframes shuffleVisual {
+            0% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-15px) translateX(10px) scale(0.95); }
+            50% { transform: translateY(15px) translateX(-10px) scale(1.05); }
+            70% { transform: translateY(-5px) scale(0.98); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .card-slot.shuffle-anim {
+            animation: shuffleVisual 0.7s ease-in-out infinite;
         }
 
         @media (max-width: 600px) {
@@ -523,7 +497,7 @@
             • Đề thi gồm <b>110 câu hỏi</b> được tuyển chọn kỹ lưỡng, chia thành 2 phần rõ rệt:<br>
             • <b>Câu 1 - 50 (Ngữ pháp cơ bản)</b>: Tập trung hoàn toàn vào 3 thì quan trọng: <i>Hiện tại đơn, Hiện tại tiếp diễn, Hiện tại hoàn thành</i>. Mỗi câu đều đi kèm các từ nhận biết đặc trưng rõ ràng giúp học sinh dễ nhận biết.<br>
             • <b>Câu 51 - 110 (Từ vựng lớp 9)</b>: 60 câu từ vựng trích xuất từ SGK Tiếng Anh 9 Global Success mới nhất, gồm 30 câu trắc nghiệm xác nhận nghĩa và 30 câu điền từ viết tay rèn luyện trí nhớ.<br>
-            • 🎁 <b>Vòng Quà Tặng Đặc Biệt</b>: Xuất hiện <b>sau mỗi 3 câu hỏi</b>. Thiết lập cấu trúc chuẩn 3 thẻ hàng trên, 2 thẻ hàng dưới mang bổ trợ hoặc +100, +200 điểm. Lá bài sẽ <b>xáo từ từ, chậm rãi trong đúng 7 giây</b>. Đặc biệt, hệ thống sẽ <b>khóa hoàn toàn tính năng nhấp chuột</b> cho đến khi bài sáng lên báo hiệu hoàn thành xáo bài mới cho chọn!
+            • 🎁 <b>Vòng Quà Tặng Đặc Biệt</b>: Xuất hiện <b>sau mỗi 3 câu hỏi</b>. Thiết lập cấu trúc chuẩn 5 thẻ bài mang bổ trợ hoặc điểm số thưởng lớn. Lá bài sẽ <b>hiển thị công khai, lật úp rồi tiến hành xáo trộn chậm rãi trong 7 giây</b>. Mọi lượt click chuột sẽ bị <b>khóa hoàn toàn</b> cho đến khi hoàn tất xáo bài!
         </div>
         <div style="text-align: center;">
             <button class="start-game-btn" onclick="startGame()">Bắt Đầu Vượt Ải Ngay</button>
@@ -587,13 +561,13 @@
 
         <div class="cards-board-container" id="cards-board-element">
             <div class="cards-row" id="row-top">
-                <div id="card-0" class="card-slot face-down" onclick="flipCard(0, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-0">?</div></div></div>
-                <div id="card-1" class="card-slot face-down" onclick="flipCard(1, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-1">?</div></div></div>
-                <div id="card-2" class="card-slot face-down" onclick="flipCard(2, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-2">?</div></div></div>
+                <div id="card-0" class="card-slot face-up" onclick="flipCard(0, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-0">?</div></div></div>
+                <div id="card-1" class="card-slot face-up" onclick="flipCard(1, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-1">?</div></div></div>
+                <div id="card-2" class="card-slot face-up" onclick="flipCard(2, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-2">?</div></div></div>
             </div>
             <div class="cards-row" id="row-bottom">
-                <div id="card-3" class="card-slot face-down" onclick="flipCard(3, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-3">?</div></div></div>
-                <div id="card-4" class="card-slot face-down" onclick="flipCard(4, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-4">?</div></div></div>
+                <div id="card-3" class="card-slot face-up" onclick="flipCard(3, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-3">?</div></div></div>
+                <div id="card-4" class="card-slot face-up" onclick="flipCard(4, this)"><div class="card-inner"><div class="card-front"><div class="card-front-pattern"></div></div><div class="card-back" id="cb-4">?</div></div></div>
             </div>
         </div>
 
@@ -621,7 +595,7 @@
 
 <script>
     const quizData = [
-        // --- 50 CÂU NGỮ PHÁP MỚI: HIỆN TẠI ĐƠN, TIẾP DIỄN, HOÀN THÀNH (DẤU HIỆU NHẬN BIẾT RÕ RÀNG) ---
+        // --- 50 CÂU NGỮ PHÁP MỚI: HIỆN TẠI ĐƠN, TIẾP DIỄN, HOÀN THÀNH ---
         { type: "mcq", q: "The sun _________ in the East and sets in the West every day.", a: "rise", b: "rises", c: "is rising", d: "has risen", correct: "B", exp: "Diễn tả một chân lý, sự thật hiển nhiên luôn dùng thì Hiện tại đơn." },
         { type: "mcq", q: "Listen! The school choir _________ a traditional song in the music room.", a: "sing", b: "sings", c: "is singing", d: "has sung", correct: "C", exp: "Dấu hiệu 'Listen!' báo hiệu hành động đang diễn ra tại thời điểm nói nên chia Hiện tại tiếp diễn." },
         { type: "mcq", q: "They are very happy because they _________ all their assignments already.", a: "finish", b: "are finishing", c: "have finished", d: "has finished", correct: "C", exp: "Dấu hiệu 'already' chỉ hành động vừa hoàn thành tính đến thời điểm hiện tại." },
@@ -683,13 +657,14 @@
     let globalScore = 0;
     let userAnswers = [];
     let timeLimitBase = 50;
-    let bonusRoundCount = 0;
     let activeDoubleScore = false;
     let activeNoTimer = false; 
     let lifelines = { fiftyFifty: 1, doubleScore: 1, noTimer: 1 };
     let timerInterval = null;
     let timeLeft = 0;
     let isAnswered = false;
+    let isShuffling = false;
+    let poolRewards = [];
 
     function switchScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
@@ -884,42 +859,52 @@
 
     function startBonusRound() {
         switchScreen('bonus-screen');
+        isShuffling = true;
+        
         let inst = document.getElementById('bonus-instructions');
         let status = document.getElementById('bonus-status');
         status.textContent = "";
-        inst.textContent = "Hệ thống đang chuẩn bị các phần quà bí ẩn...";
+        inst.textContent = "🎁 Hãy ghi nhớ các phần quà ẩn giấu dưới đây!";
+
+        let rewardsList = ["+100 Điểm", "+200 Điểm", "Bổ trợ x2 Điểm", "Bổ trợ Chậm Giờ", "+50 Điểm"];
+        poolRewards = [...rewardsList].sort(() => Math.random() - 0.5);
 
         let slots = document.querySelectorAll('.card-slot');
-        slots.forEach(s => {
-            s.className = "card-slot face-down disabled";
+        slots.forEach((s, idx) => {
+            s.className = "card-slot face-up disabled"; 
+            let backEl = document.getElementById('cb-' + idx);
+            backEl.textContent = poolRewards[idx];
         });
 
         setTimeout(() => {
-            inst.textContent = "Hệ thống đang xáo trộn thẻ bài tự động trong 7 giây. Hãy chú ý nhìn theo!";
-            
+            inst.textContent = "⚡ Các thẻ bài đang úp xuống và tự động xáo trộn... Đợi trong 7 giây!";
+            slots.forEach(s => {
+                s.classList.remove('face-up');
+                s.classList.add('face-down', 'shuffle-anim');
+            });
+
             setTimeout(() => {
-                inst.textContent = "Xáo bài hoàn tất! Hãy nhấp chọn một chiếc hộp bạn muốn!";
+                isShuffling = false;
+                inst.textContent = "🌟 Xáo bài hoàn tất! Hãy click chọn chiếc hộp may mắn của con!";
                 slots.forEach(s => {
-                    s.classList.remove('disabled');
+                    s.classList.remove('shuffle-anim', 'disabled');
                     s.classList.add('highlight-ready');
                 });
             }, 7000);
 
-        }, 1500);
+        }, 2500);
     }
 
     function flipCard(idx, element) {
-        if (element.classList.contains('disabled') || element.classList.contains('face-up')) return;
+        if (isShuffling || element.classList.contains('disabled') || element.classList.contains('face-up')) return;
         
         let slots = document.querySelectorAll('.card-slot');
-        slots.forEach(s => s.classList.add('disabled'));
+        slots.forEach(s => {
+            s.classList.add('disabled');
+            s.classList.remove('highlight-ready');
+        });
 
-        let rewards = ["+100 Điểm", "+200 Điểm", "Bổ trợ x2 Điểm", "Bổ trợ Chậm Giờ", "+50 Điểm"];
-        let rolled = rewards[Math.floor(Math.random() * rewards.length)];
-
-        let backEl = document.getElementById('cb-' + idx);
-        backEl.textContent = rolled;
-
+        let rolled = poolRewards[idx];
         element.classList.remove('face-down');
         element.classList.add('face-up', 'zoomed-winner');
 
@@ -1019,7 +1004,6 @@
             itemDiv.className = "history-item history-wrong";
 
             let correctText = itemData.correct;
-            // Nếu là câu hỏi trắc nghiệm MCQ, hiển thị cả chữ cái lẫn nội dung đáp án
             if (itemData.type === "mcq") {
                 let key = itemData.correct.toLowerCase();
                 if (itemData[key]) {
@@ -1045,9 +1029,9 @@
         globalScore = 0;
         userAnswers = [];
         timeLimitBase = 50;
-        bonusRoundCount = 0;
         activeDoubleScore = false;
         activeNoTimer = false; 
+        isShuffling = false;
         
         lifelines = { 
             fiftyFifty: 1, 
