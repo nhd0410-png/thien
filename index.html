@@ -521,8 +521,8 @@
         <p style="font-size: 1.2rem; color: #00fff0; text-align: center; margin: 0;">English Grade 9 - Global Success Edition</p>
         
         <div class="intro-rules">
-            <strong>🚀 THÔNG TIN ĐỀ THI ĐẤU TRƯỜNG (110 CÂU):</strong><br>
-            • Đề thi gồm <b>110 câu hỏi</b> trích xuất từ SGK Tiếng Anh 9 Global Success mới nhất.<br>
+            <strong>🚀 THÔNG TIN ĐỀ THI ĐẤU TRƯỜNG (65 CÂU):</strong><br>
+            • Đề thi gồm <b>65 câu hỏi</b> trích xuất từ SGK Tiếng Anh 9 Global Success mới nhất.<br>
             • <b>Tính toán điểm số</b>: Điểm số của mỗi câu trả lời chính xác sẽ được cộng thêm số giây còn lại trên đồng hồ đếm ngược. Nếu kích hoạt bổ trợ Chậm Giờ, số giây cộng thêm sẽ tự động chia đôi để đảm bảo tính cân bằng.<br>
             • 🎁 <b>Vòng Quà Tặng Đặc Biệt</b>: Xuất hiện <b>sau mỗi 3 câu hỏi</b>. Hệ thống sẽ xáo trộn các lá bài tự động trong vòng 7 giây trước khi cho phép mở quà.
         </div>
@@ -533,7 +533,7 @@
 
     <div id="game-screen" class="screen">
         <div class="progress-info">
-            <div>Câu hỏi: <span id="current-q-num">1</span> / 110</div>
+            <div>Câu hỏi: <span id="current-q-num">1</span> / 65</div>
             <div style="color: var(--accent-color);">Điểm: <span id="score-display">0</span></div>
             <div>Giờ còn: <span id="countdown-text">50s</span></div>
         </div>
@@ -634,18 +634,84 @@
 
 <script>
     const quizData = [
-        { type: "mcq", q: "The sun _________ in the East and sets in the West every day.", a: "rise", b: "rises", c: "is rising", d: "has risen", correct: "B", exp: "Diễn tả một chân lý, sự thật hiển nhiên luôn dùng thì Hiện tại đơn." },
-        { type: "mcq", q: "Listen! The school choir _________ a traditional song in the music room.", a: "sing", b: "sings", c: "is singing", d: "has sung", correct: "C", exp: "Dấu hiệu 'Listen!' báo hiệu hành động đang diễn ra tại thời điểm nói nên chia Hiện tại tiếp diễn." },
-        { type: "mcq", q: "They are very happy because they _________ all their assignments already.", a: "finish", b: "are finishing", c: "have finished", d: "has finished", correct: "C", exp: "Dấu hiệu 'already' chỉ hành động vừa hoàn thành tính đến thời điểm hiện tại." },
-        { type: "mcq", q: "My father _________ this ancient clock since he visited Hue in 2015.", a: "keep", b: "keeps", c: "is keeping", d: "has kept", correct: "D", exp: "Dấu hiệu 'since + mốc thời gian' là cấu trúc đặc trưng của thì Hiện tại hoàn thành." },
-        { type: "mcq", q: "Look! The little boy _________ down the street without looking at the traffic.", a: "run", b: "runs", c: "is running", d: "has run", correct: "C", exp: "Dấu hiệu 'Look!' thu hút sự chú ý vào hành động đang xảy ra đồng thời lúc nói." },
-        { type: "mcq", q: "Water _________ at 100 degrees Celsius under normal pressure.", a: "boil", b: "boils", c: "is boiling", d: "has boiled", correct: "B", exp: "Diễn tả một chân lý khoa học bất biến dùng thì Hiện tại đơn." },
-        { type: "mcq", q: "At the moment, the volunteers _________ garbage along the local beach.", a: "collect", b: "collects", c: "are collecting", d: "have collected", correct: "C", exp: "Dấu hiệu 'At the moment' (ngay lúc này) chỉ hành động đang tiếp diễn." },
-        { type: "mcq", q: "Jane and Anna _________ close friends for more than five years.", a: "be", b: "are being", c: "have been", d: "has been", correct: "C", exp: "Dấu hiệu 'for + khoảng thời gian' chỉ hành động kéo dài từ quá khứ đến hiện tại." },
-        { type: "mcq", q: "We occasionally _________ traditional pottery villages on weekends.", a: "visit", b: "visits", c: "are visiting", d: "have visited", correct: "A", exp: "Trạng từ tần suất 'occasionally' chỉ thói quen lặp lại ở Hiện tại đơn." },
-        { type: "mcq", q: "Be quiet! The baby _________ in the next room right now.", a: "sleep", b: "sleeps", c: "is sleeping", d: "has slept", correct: "C", exp: "Cụm từ mệnh lệnh 'Be quiet!' kết hợp 'right now' yêu cầu chia Hiện tại tiếp diễn." },
-        { type: "written", q: "Điền từ tiếng Anh có nghĩa là 'Thợ làm gốm': p_ _ _ _ _", correct: "potter", exp: "Từ vựng Unit 1: potter (Danh từ) nghĩa là thợ làm đồ gốm." },
-        { type: "written", q: "Điền từ tiếng Anh có nghĩa là 'Nghệ nhân': a_ _ _ _ _ _", correct: "artisan", exp: "Từ vựng Unit 1: artisan (Danh từ) nghĩa là nghệ nhân, thợ lành nghề." }
+        // ==========================================
+        // PART 1: GRAMMAR PRACTICE (Questions 1 - 35)
+        // ==========================================
+        { type: "mcq", q: "The local artisan _________ beautiful pottery baskets every single morning.", a: "weave", b: "weaves", c: "is weaving", d: "has weaved", correct: "B", exp: "Diễn tả thói quen, hành động lặp đi lặp lại ở hiện tại đơn với chủ ngữ số ít." },
+        { type: "mcq", q: "Look! The artisans _________ a gigantic clay vase in the pottery village workshop.", a: "mould", b: "moulds", c: "are moulding", d: "have moulded", correct: "C", exp: "Dấu hiệu 'Look!' báo hiệu hành động đang diễn ra tại thời điểm nói." },
+        { type: "mcq", q: "We _________ this traditional handicraft village three times this year.", a: "visit", b: "visits", c: "are visiting", d: "have visited", correct: "D", exp: "Dấu hiệu 'three times' chỉ số lần trải nghiệm tính đến hiện tại (Hiện tại hoàn thành)." },
+        { type: "mcq", q: "My brother _________ for new community activities on the bulletin board right now.", a: "look up", b: "looks up", c: "is looking up", d: "has looked up", correct: "C", exp: "Dấu hiệu 'right now' chỉ hành động đang xảy ra tại thời điểm nói." },
+        { type: "mcq", q: "The local authorities always _________ the community facilities to help the residents.", a: "improve", b: "improves", c: "are improving", d: "have improved", correct: "A", exp: "Trạng từ 'always' và chủ ngữ số nhiều diễn tả hành động thường xuyên ở hiện tại đơn." },
+        { type: "mcq", q: "Jane _________ as a volunteer helper in her neighborhood for over two years.", a: "work", b: "works", c: "is working", d: "has worked", correct: "D", exp: "Dấu hiệu 'for over two years' chỉ hành động bắt đầu trong quá khứ kéo dài đến hiện tại." },
+        { type: "mcq", q: "Listen! A community officer _________ about the new recycling guidelines in the hall.", a: "speak", b: "speaks", c: "is speaking", d: "has spoken", correct: "C", exp: "Dấu hiệu 'Listen!' yêu cầu chia thì Hiện tại tiếp diễn." },
+        { type: "mcq", q: "Every weekend, my father _________ out the garbage to keep our surroundings clean.", a: "take", b: "takes", c: "is taking", d: "has taken", correct: "B", exp: "Dấu hiệu 'Every weekend' diễn tả thói quen lặp đi lặp lại ở Hiện tại đơn." },
+        { type: "mcq", q: "They _________ the old public park into a wonderful community garden already.", a: "turn", b: "turns", c: "are turning", d: "have turned", correct: "D", exp: "Dấu hiệu 'already' báo hiệu hành động vừa hoàn thành ở Hiện tại hoàn thành." },
+        { type: "mcq", q: "At the moment, we _________ interactive maps to locate all the local attractions.", a: "use", b: "uses", c: "are using", d: "have used", correct: "C", exp: "Dấu hiệu 'At the moment' báo hiệu thì Hiện tại tiếp diễn." },
+        { type: "mcq", q: "Hanoi _________ a significant change in its metropolitan infrastructure recently.", a: "experience", b: "experiences", c: "is experiencing", d: "has experienced", correct: "D", exp: "Dấu hiệu 'recently' báo hiệu thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "Listen! The neighborhood guard _________ his whistle to alert the residents.", a: "blow", b: "blows", c: "is blowing", d: "has blown", correct: "C", exp: "Dấu hiệu 'Listen!' báo hiệu hành động đang diễn ra." },
+        { type: "mcq", q: "Our local community group _________ meetings on the first Monday of every month.", a: "hold", b: "holds", c: "is holding", d: "has held", correct: "B", exp: "Diễn tả lịch trình, thói quen định kỳ ở Hiện tại đơn." },
+        { type: "mcq", q: "I cannot go out with you now because I _________ my neighborhood clean-up report.", a: "write", b: "writes", c: "is writing", d: "am writing", correct: "D", exp: "Diễn tả hành động đang diễn ra tại thời điểm nói kết hợp với ngữ cảnh 'now'." },
+        { type: "mcq", q: "They _________ any traditional souvenirs from the pottery village shop yet.", a: "don't buy", b: "aren't buying", c: "haven't bought", d: "has bought", correct: "C", exp: "Dấu hiệu 'yet' dùng trong câu phủ định của thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "The train to the metropolitan city center _________ at precisely 6:00 AM every morning.", a: "leave", b: "leaves", c: "is leaving", d: "has left", correct: "B", exp: "Diễn tả lịch trình tàu xe cố định ở Hiện tại đơn." },
+        { type: "mcq", q: "Currently, the local government _________ new sports facilities for the youngsters.", a: "build", b: "builds", c: "is building", d: "has built", correct: "C", exp: "Dấu hiệu 'Currently' báo hiệu hành động đang diễn ra." },
+        { type: "mcq", q: "You look tired! _________ you _________ in the crowded city traffic for a long time?", a: "Do - stuck", b: "Are - sticking", c: "Have - been stuck", d: "Has - stuck", correct: "C", exp: "Hỏi về một trải nghiệm kéo dài từ quá khứ để lại kết quả ở hiện tại." },
+        { type: "mcq", q: "She seldom _________ public buses because she prefers walking around the clean neighborhood.", a: "take", b: "takes", c: "is taking", d: "has taken", correct: "B", exp: "Trạng từ tần suất 'seldom' dùng ở Hiện tại đơn với chủ ngữ số ít." },
+        { type: "mcq", q: "We _________ each other since we attended the community workshop in 2024.", a: "know", b: "are knowing", c: "have known", d: "has known", correct: "C", exp: "Cấu trúc với 'since' chỉ hành động kéo dài đến nay." },
+        { type: "mcq", q: "The artisan village _________ plenty of tourists because its crafts are very unique.", a: "attract", b: "attracts", c: "is attracting", d: "has attracted", correct: "B", exp: "Diễn tả sự thật hiển nhiên ở Hiện tại đơn." },
+        { type: "mcq", q: "Be careful! The construction workers _________ down that old community facility.", a: "pull", b: "pulls", c: "are pulling", d: "have pulled", correct: "C", exp: "Dấu hiệu cảnh báo 'Be careful!' chỉ hành động đang diễn ra." },
+        { type: "mcq", q: "Up to now, the active volunteers _________ tons of junk from the city river bank.", a: "collect", b: "collects", c: "are collecting", d: "have collected", correct: "D", exp: "Dấu hiệu 'Up to now' báo hiệu thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "The air pollution in this metropolitan area _________ worse and worse these days.", a: "get", b: "gets", c: "is getting", d: "has gotten", correct: "C", exp: "Cấu trúc 'worse and worse' chỉ xu hướng đang thay đổi dần ở Hiện tại tiếp diễn." },
+        { type: "mcq", q: "Our school always _________ students to visit historical places and traditional craft villages.", a: "encourage", b: "encourages", c: "is encouraging", d: "has encouraged", correct: "B", exp: "Trạng từ 'always' diễn tả một đặc điểm cố định ở Hiện tại đơn." },
+        { type: "mcq", q: "We _________ a new lifestyle in the calm suburbs, and we love it so much.", a: "just start", b: "are just starting", c: "have just started", d: "just starts", correct: "C", exp: "Dấu hiệu 'just' chỉ hành động vừa mới xảy ra ở Hiện tại hoàn thành." },
+        { type: "mcq", q: "The local children usually _________ up to the old village elders for advice.", a: "look", b: "looks", c: "are looking", d: "have looked", correct: "A", exp: "Trạng từ 'usually' đi với chủ ngữ số nhiều ở Hiện tại đơn." },
+        { type: "mcq", q: "Hurry up! The final metro train to the center _________ in five minutes.", a: "arrive", b: "arrives", c: "is arriving", d: "has arrived", correct: "B", exp: "Lịch trình tàu xe cố định hoặc sự kiện tương lai gần có giờ sẵn dùng Hiện tại đơn." },
+        { type: "mcq", q: "The community center _________ out of garbage bags, so we need to buy some now.", a: "run", b: "runs", c: "is running", d: "has run", correct: "D", exp: "Diễn tả trạng thái đã hết sạch đồ (Hiện tại hoàn thành)." },
+        { type: "mcq", q: "They _________ an original handicraft exhibition in the public square right now.", a: "organize", b: "organizes", c: "are organizing", d: "have organized", correct: "C", exp: "Dấu hiệu 'right now' chỉ hành động đang diễn ra." },
+        { type: "mcq", q: "Look! The dark smoke from the neighborhood factory _________ the clean air.", a: "pollute", b: "pollutes", c: "is polluting", d: "has polluted", correct: "C", exp: "Dấu hiệu 'Look!' báo hiệu hành động đang diễn ra." },
+        { type: "mcq", q: "She _________ the city life yet because she hates the non-stop noise and rush hour traffic.", a: "doesn't like", b: "isn't liking", c: "hasn't liked", d: "don't like", correct: "A", exp: "Động từ trạng thái 'like' dùng ở Hiện tại đơn phủ định." },
+        { type: "mcq", q: "We _________ about the cost of living in this metropolitan area recently.", a: "complain", b: "complains", c: "are complaining", d: "have complained", correct: "D", exp: "Dấu hiệu 'recently' chỉ thì Hiện tại hoàn thành." },
+        { type: "mcq", q: "At present, the municipal workers _________ the clogged drainage system in our neighborhood.", a: "fix", b: "fixes", c: "are fixing", d: "have fixed", correct: "C", exp: "Dấu hiệu 'At present' chỉ hành động tiếp diễn." },
+        { type: "mcq", q: "My aunt _________ a small souvenir shop in the heart of the city since 2018.", a: "run", b: "runs", c: "is running", d: "has run", correct: "D", exp: "Dấu hiệu 'since + mốc thời gian' dùng thì Hiện tại hoàn thành." },
+
+        // ==========================================
+        // PART 2: VOCABULARY CHECK
+        // SECTION A: MULTIPLE CHOICE (Questions 36 - 50)
+        // ==========================================
+        { type: "mcq", q: "What is the English word for 'Thợ thủ công / Nghệ nhân'?", a: "artisan", b: "dweller", c: "ancestor", d: "suburbanite", correct: "A", exp: "artisan (Danh từ): Nghệ nhân, thợ thủ công lành nghề." },
+        { type: "mcq", q: "Which word means 'Đồ thủ công mỹ nghệ'?", a: "skyscraper", b: "handicraft", c: "facility", d: "concrete jungle", correct: "B", exp: "handicraft (Danh từ): Vật dụng thủ công mỹ nghệ trang trí." },
+        { type: "mcq", q: "What is the correct English term for 'Đồ gốm'?", a: "weave", b: "sculpture", c: "pottery", d: "canvas", correct: "C", exp: "pottery (Danh từ): Đồ gốm sứ được nặn bằng đất sét nung." },
+        { type: "mcq", q: "Which phrasal verb means 'Truyền lại' (to pass something to the next generation)?", a: "find out", b: "look up", c: "pass down", d: "pull down", correct: "C", exp: "pass down (Cụm động từ): Truyền lại di sản, kiến thức đời sau." },
+        { type: "mcq", q: "Choose the word that means 'Đáng sống' (fit or pleasant to live in).", a: "metropolitan", b: "crowded", c: "liveable", d: "ancient", correct: "C", exp: "liveable (Tính từ): Đáng sống, điều kiện môi trường sống tốt." },
+        { type: "mcq", q: "Select the correct word for 'Đông đúc' (full of people).", a: "modern", b: "crowded", c: "original", d: "suburban", correct: "B", exp: "crowded (Tính từ): Đông đúc, chật ních người qua lại." },
+        { type: "mcq", q: "Which term refers to a 'Rừng bê tông / Thành phố ngột ngạt'?", a: "green space", b: "public park", c: "concrete jungle", d: "metropolitan area", correct: "C", exp: "concrete jungle (Danh từ): Khu rừng bê tông, thành phố dày đặc nhà cao tầng ngột ngạt." },
+        { type: "mcq", q: "What is the English word for 'Thuộc về đô thị lớn / Thủ đô'?", a: "metropolitan", b: "rural", c: "suburban", d: "local", correct: "A", exp: "metropolitan (Tính từ): Thuộc đô thị lớn lớn, có tính trung tâm cao." },
+        { type: "mcq", q: "Which phrasal verb means 'Tra từ điển / Tra cứu thông tin'?", a: "get on", b: "look up", c: "run out", d: "pull down", correct: "B", exp: "look up (Cụm động từ): Tra từ điển, tra cứu thông tin dữ liệu." },
+        { type: "mcq", q: "What phrasal verb is used for 'Tìm ra thông tin / Khám phá'?", a: "pass down", b: "look up", c: "turn up", d: "find out", correct: "D", exp: "find out (Cụm động từ): Tìm ra, phát hiện thông tin mới." },
+        { type: "mcq", q: "What is the English word for 'Vùng ngoại ô thành phố'?", a: "downtown", b: "suburb", c: "metropolitan", d: "attraction", correct: "B", exp: "suburb (Danh từ): Vùng ngoại ô rìa ngoài thành phố." },
+        { type: "mcq", q: "What is the correct word for 'Cơ sở vật chất / Tiện ích'?", a: "attraction", b: "facility", c: "handicraft", d: "dweller", correct: "B", exp: "facility (Danh từ): Cơ sở vật chất phục vụ hoạt động cộng đồng." },
+        { type: "mcq", q: "Which word refers to the underground railway system used in big cities?", a: "highway", b: "suburban", c: "underground", d: "runway", correct: "C", exp: "underground (Danh từ): Hệ thống đường sắt/tàu điện ngầm chạy dưới đất." },
+        { type: "mcq", q: "Choose the word that means 'Gốc / Nguyên bản':", a: "liveable", b: "crowded", c: "modern", d: "original", correct: "D", exp: "original (Tính từ): Gốc, nguyên bản, không sao chép." },
+        { type: "mcq", q: "What is the term for 'Người dân sống ở thành phố'?", a: "artisan", b: "city dweller", c: "volunteer", d: "local authority", correct: "B", exp: "city dweller (Danh từ): Cư dân định cư sống tại thành phố." },
+
+        // ==========================================
+        // SECTION B: WRITTEN SPELLING (Questions 51 - 65)
+        // Targets identical target words verified in Section A
+        // ==========================================
+        { type: "written", q: "Fill in the missing letters to complete the noun meaning 'Thợ thủ công / Nghệ nhân':<br>a _ _ _ _ _ _", correct: "artisan", exp: "Đáp án đúng là 'artisan' (nghệ nhân)." },
+        { type: "written", q: "Fill in the missing letters to complete the noun meaning 'Đồ thủ công mỹ nghệ':<br>h _ _ _ _ _ _ _ _ _", correct: "handicraft", exp: "Đáp án đúng là 'handicraft' (đồ thủ công mỹ nghệ)." },
+        { type: "written", q: "Fill in the missing letters to complete the noun meaning 'Đồ gốm':<br>p _ _ _ _ _ _", correct: "pottery", exp: "Đáp án đúng là 'pottery' (đồ gốm)." },
+        { type: "written", q: "Fill in the missing letters to complete the phrasal verb meaning 'Truyền lại':<br>p _ _ _   d _ _ _", correct: "pass down", exp: "Đáp án đúng là 'pass down' (truyền lại di sản)." },
+        { type: "written", q: "Fill in the missing letters to complete the adjective meaning 'Đáng sống':<br>l _ _ _ _ _ _ _", correct: "liveable", exp: "Đáp án đúng là 'liveable' (đáng sống)." },
+        { type: "written", q: "Fill in the missing letters to complete the adjective meaning 'Đông đúc':<br>c _ _ _ _ _ _", correct: "crowded", exp: "Đáp án đúng là 'crowded' (đông đúc)." },
+        { type: "written", q: "Fill in the missing letters to complete the phrase meaning 'Rừng bê tông / Thành phố ngột ngạt':<br>c _ _ _ _ _ _ _   j _ _ _ _ _", correct: "concrete jungle", exp: "Đáp án đúng là 'concrete jungle' (thành phố ngột ngạt bê tông)." },
+        { type: "written", q: "Fill in the missing letters to complete the adjective meaning 'Thuộc về đô thị lớn / Thủ đô':<br>m _ _ _ _ _ _ _ _ _ _ _", correct: "metropolitan", exp: "Đáp án đúng là 'metropolitan' (thuộc về đô thị)." },
+        { type: "written", q: "Fill in the missing letters to complete the phrasal verb meaning 'Tra từ điển / Tra cứu thông tin':<br>l _ _ _   u _", correct: "look up", exp: "Đáp án đúng là 'look up' (tra cứu từ điển)." },
+        { type: "written", q: "Fill in the missing letters to complete the phrasal verb meaning 'Tìm ra thông tin / Khám phá':<br>f _ _ _   o _ _", correct: "find out", exp: "Đáp án đúng là 'find out' (tìm ra, phát hiện)." },
+        { type: "written", q: "Fill in the missing letters to complete the noun meaning 'Vùng ngoại ô thành phố':<br>s _ _ _ _ _ _", correct: "suburb", exp: "Đáp án đúng là 'suburb' (vùng ngoại ô)." },
+        { type: "written", q: "Fill in the missing letters to complete the noun meaning 'Cơ sở vật chất / Tiện ích':<br>f _ _ _ _ _ _ _", correct: "facility", exp: "Đáp án đúng là 'facility' (cơ sở vật chất)." },
+        { type: "written", q: "Fill in the missing letters to complete the noun meaning 'Hệ thống đường ngầm / Tàu điện ngầm':<br>u _ _ _ _ _ _ _ _ _ _", correct: "underground", exp: "Đáp án đúng là 'underground' (tàu điện ngầm)." },
+        { type: "written", q: "Fill in the missing letters to complete the adjective meaning 'Gốc / Nguyên bản':<br>o _ _ _ _ _ _ _", correct: "original", exp: "Đáp án đúng là 'original' (nguyên bản, gốc)." },
+        { type: "written", q: "Fill in the missing letters to complete the phrase meaning 'Người dân sống ở thành phố':<br>c _ _ _   d _ _ _ _ _ _", correct: "city dweller", exp: "Đáp án đúng là 'city dweller' (cư dân thành phố)." }
     ];
 
     let currentQuestionIndex = 0;
@@ -1086,7 +1152,6 @@
                 document.getElementById(`card-${i}`).className = "card-slot face-up disabled";
             }
             setTimeout(() => {
-                bonusScreen.remove("active-screen");
                 bonusScreen.classList.remove("active-screen");
                 gameScreen.classList.add("active-screen");
                 loadQuestion();
@@ -1100,13 +1165,9 @@
         bonusScreen.classList.remove("active-screen");
         resultScreen.classList.add("active-screen");
         
-        // Cập nhật điểm số hiển thị
         document.getElementById("final-score").textContent = globalScore;
-        
-        // Tự động điền điểm số vào form Formspree (chỉ đọc)
         document.getElementById("form-score-input").value = globalScore + " điểm";
 
-        // --- AUTO-COMPILE HISTORY LOG TEXT ---
         let historyLogText = "";
         userAnswers.forEach((ans) => {
             let itemData = quizData[ans.qIndex];
@@ -1122,13 +1183,11 @@
             historyLogText += `-----------------------------------------\n`;
         });
 
-        // Pack the compiled data safely into the hidden layout element
         document.getElementById("form-history-input").value = historyLogText;
-        // ------------------------------------
 
         let lvl = "";
-        if (globalScore >= 1200) lvl = "👑 Hạng Kim Cương - Đại Kiện Tướng Vũ Trụ!";
-        else if (globalScore >= 700) lvl = "🌟 Hạng Vàng - Chiến Binh Không Gian Xuất Sắc!";
+        if (globalScore >= 2500) lvl = "👑 Hạng Kim Cương - Đại Kiện Tướng Vũ Trụ!";
+        else if (globalScore >= 1500) lvl = "🌟 Hạng Vàng - Chiến Binh Không Gian Xuất Sắc!";
         else lvl = "🚀 Hạng Đồng - Phi Hành Gia Tập Sự Cố Gắng Hơn!";
         
         document.getElementById("reward-level").textContent = lvl;
@@ -1170,9 +1229,7 @@
     }
 
     function restartGame() {
-        // Reset trường nhập tên học sinh khi chơi lại
         document.getElementById("student-name-input").value = "";
-        
         historyScreen.classList.remove("active-screen");
         resultScreen.classList.remove("active-screen");
         introScreen.classList.add("active-screen");
